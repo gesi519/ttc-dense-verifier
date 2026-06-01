@@ -78,6 +78,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_generation.add_argument("--model", default="remote-model")
     run_generation.add_argument("--api-key")
     run_generation.add_argument("--scripted-answer")
+    run_generation.add_argument("--timeout-seconds", type=float, default=60.0)
+    run_generation.add_argument("--max-tokens", type=int)
+    run_generation.add_argument("--temperature", type=float)
 
     prepare = subparsers.add_parser("prepare-preferences", help="Build preference splits from aligned JSONL files.")
     prepare.add_argument("--questions", required=True)
@@ -311,7 +314,14 @@ def _run_generation_requests(args: argparse.Namespace) -> int:
     else:
         if not args.endpoint:
             raise SystemExit("--endpoint is required unless --scripted-answer is provided")
-        generator = OpenAICompatibleGeneratorClient(args.endpoint, model=args.model, api_key=args.api_key)
+        generator = OpenAICompatibleGeneratorClient(
+            args.endpoint,
+            model=args.model,
+            api_key=args.api_key,
+            timeout_seconds=args.timeout_seconds,
+            max_tokens=args.max_tokens,
+            temperature=args.temperature,
+        )
     write_jsonl(args.output, run_generation_requests(requests, generator=generator))
     return 0
 

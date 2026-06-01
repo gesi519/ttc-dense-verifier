@@ -69,11 +69,21 @@ class OpenAICompatibleGeneratorClient:
     downloads or imports model weights locally.
     """
 
-    def __init__(self, endpoint: str, model: str, api_key: str | None = None, timeout_seconds: float = 60):
+    def __init__(
+        self,
+        endpoint: str,
+        model: str,
+        api_key: str | None = None,
+        timeout_seconds: float = 60,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+    ):
         self.endpoint = endpoint.rstrip("/")
         self.model = model
         self.api_key = api_key
         self.timeout_seconds = timeout_seconds
+        self.max_tokens = max_tokens
+        self.temperature = temperature
 
     def expand(self, prompt: str, prefix: str, count: int) -> list[Candidate]:
         payload = {
@@ -84,6 +94,10 @@ class OpenAICompatibleGeneratorClient:
                 {"role": "assistant", "content": prefix},
             ],
         }
+        if self.max_tokens is not None:
+            payload["max_tokens"] = self.max_tokens
+        if self.temperature is not None:
+            payload["temperature"] = self.temperature
         request = urllib.request.Request(
             f"{self.endpoint}/chat/completions",
             data=json.dumps(payload).encode("utf-8"),

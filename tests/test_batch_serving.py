@@ -11,7 +11,7 @@ from ttc_dense_verifier.serving.batch import (
     run_generation_requests,
     score_preference_pairs,
 )
-from ttc_dense_verifier.serving.clients import Candidate, RuleBasedVerifierClient
+from ttc_dense_verifier.serving.clients import Candidate, OpenAICompatibleGeneratorClient, RuleBasedVerifierClient
 
 
 class FakeGenerator:
@@ -149,6 +149,44 @@ class BatchServingTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             rows = [json.loads(line) for line in output_path.read_text(encoding="utf-8").splitlines()]
             self.assertGreater(rows[0]["chosen_score"], rows[0]["rejected_score"])
+
+    def test_openai_generator_includes_optional_sampling_controls(self):
+        client = OpenAICompatibleGeneratorClient(
+            "http://generator.example/v1",
+            model="Qwen2.5-32B-Instruct",
+            max_tokens=192,
+            temperature=0.2,
+        )
+        payloads = []
+
+        def fake_urlopen(request, timeout):
+            del timeout
+            payloads.append(json.loads(request.data.decode("utf-8")))
+
+            class Response:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, exc_type, exc, tb):
+                    return False
+
+                def read(self):
+                    return json.dumps({"choices": [{"message": {"content": "answer"}}]}).encode("utf-8")
+
+            return Response()
+
+        import urllib.request
+
+        original_urlopen = urllib.request.urlopen
+        urllib.request.urlopen = fake_urlopen
+        try:
+            candidates = client.expand("Prompt", "", 1)
+        finally:
+            urllib.request.urlopen = original_urlopen
+
+        self.assertEqual(candidates[0].text, "answer")
+        self.assertEqual(payloads[0]["max_tokens"], 192)
+        self.assertEqual(payloads[0]["temperature"], 0.2)
 
 
 if __name__ == "__main__":
