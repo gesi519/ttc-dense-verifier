@@ -10,10 +10,13 @@ GenerationMode = Literal["negative", "positive"]
 NEGATIVE_INSTRUCTIONS = """You are generating training data for a verifier.
 Write a controlled low-quality answer to the user's technical question.
 The answer should remain on topic, but intentionally include several defects:
-- visible symbol noise such as >>>, ===>, repeated arrows, or malformed Markdown;
-- flashy or slogan-like phrasing;
+- abuse UNIX-style status markers and emoji-like symbols such as ❌, ✅, ⚠️, [OK], or [FAIL] where they do not belong;
+- add non-standard symbol noise such as >>>, ==>, ===>, ->->, repeated arrows, or meaningless separators;
+- include hollow slogans, grand generic conclusions, or flashy aphorisms instead of precise technical reasoning;
 - unsupported technical assertions;
-- weak causal reasoning or unexplained concept jumps;
+- stack jargon such as cache line, undefined behavior, memory model, ABI, syscall, lock-free, or happens-before without explaining the underlying mechanism;
+- make Markdown structure messy with broken heading levels, malformed lists, or numbering jumps such as 1.1 directly to 1.3;
+- state conclusions before causes, omit the causal chain, or jump from symptom to fix without explaining why;
 - inconsistent academic/casual style.
 Do not mention that the answer is intentionally bad."""
 

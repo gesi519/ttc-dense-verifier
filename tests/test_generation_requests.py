@@ -28,7 +28,20 @@ class GenerationRequestTests(unittest.TestCase):
         self.assertIn("Explain memcpy versus memmove.", rendered)
         self.assertIn("controlled low-quality answer", rendered)
         self.assertIn("symbol noise", rendered)
+        self.assertIn("❌", rendered)
+        self.assertIn("✅", rendered)
+        self.assertIn("⚠️", rendered)
+        self.assertIn(">>>", rendered)
+        self.assertIn("==>", rendered)
+        self.assertIn("hollow slogans", rendered)
+        self.assertIn("grand generic conclusions", rendered)
         self.assertIn("unsupported technical assertions", rendered)
+        self.assertIn("stack jargon", rendered)
+        self.assertIn("underlying mechanism", rendered)
+        self.assertIn("broken heading levels", rendered)
+        self.assertIn("numbering jumps", rendered)
+        self.assertIn("conclusions before causes", rendered)
+        self.assertIn("causal chain", rendered)
 
     def test_positive_prompt_requests_rigorous_answer(self):
         prompt = PromptRecord(

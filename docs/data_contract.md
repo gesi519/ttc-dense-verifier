@@ -113,7 +113,10 @@ Required fields:
 
 Positive requests ask for rigorous technical answers. Negative requests ask for
 controlled low-quality answers that stay on topic while introducing defects such
-as symbol noise, unsupported assertions, weak causal reasoning, and inconsistent
+as UNIX-style status markers or emoji-like symbols (`❌`, `✅`, `⚠️`),
+non-standard symbol noise (`>>>`, `==>`, repeated arrows), hollow slogans,
+unsupported assertions, unexplained jargon stacking, broken heading or numbering
+structure, missing causal chains, conclusion-first reasoning, and inconsistent
 style. The request must not ask the model to reveal that the answer is
 intentionally bad.
 
