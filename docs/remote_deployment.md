@@ -49,6 +49,8 @@ python -m ttc_dense_verifier.cli export-remote-runbook \
 Then copy the repository to the remote server and run:
 
 ```bash
+make remote-sync
+ssh g3
 cd /data/lry_machine_learning/ttc_dense_verifier
 cp scripts/remote_deploy/generated/.env.example scripts/remote_deploy/generated/.env
 # Edit endpoint, model path, GPU, and verifier service values before sourcing.

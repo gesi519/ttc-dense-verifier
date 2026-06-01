@@ -173,5 +173,6 @@ g3
 启动远程长任务前必须确认：
 
 ```bash
-ssh g3 'nvidia-smi && cd /data/lry_machine_learning/ttc_dense_verifier && git status --short'
+make remote-status
+make remote-health
 ```

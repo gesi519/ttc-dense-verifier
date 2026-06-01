@@ -46,27 +46,41 @@ make verify
 
 ## 3. 远程部署命令
 
-同步到远程服务器示例：
+同步到远程服务器：
 
 ```bash
-rsync -av \
-  --exclude .git \
-  --exclude checkpoints \
-  --exclude outputs/logs \
-  --exclude scripts/remote_deploy/generated/.env \
-  ./ g3:/data/lry_machine_learning/ttc_dense_verifier/
+make remote-sync
+```
+
+远程启动前状态检查：
+
+```bash
+make remote-status
 ```
 
 远程健康检查：
 
 ```bash
-ssh g3 'cd /data/lry_machine_learning/ttc_dense_verifier && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/health_check.sh'
+make remote-health
 ```
 
 远程长任务：
 
 ```bash
-ssh g3 'cd /data/lry_machine_learning/ttc_dense_verifier && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/run_remote_jobs.sh'
+make remote-jobs
+```
+
+默认远程主机和目录：
+
+```bash
+REMOTE_HOST=g3
+REMOTE_PROJECT_DIR=/data/lry_machine_learning/ttc_dense_verifier
+```
+
+需要覆盖时：
+
+```bash
+make remote-sync REMOTE_HOST=g3 REMOTE_PROJECT_DIR=/data/lry_machine_learning/ttc_dense_verifier
 ```
 
 ## 4. 推荐阶段顺序
@@ -74,7 +88,8 @@ ssh g3 'cd /data/lry_machine_learning/ttc_dense_verifier && set -a && source scr
 ```text
 local verify
  -> export remote runbook
- -> rsync to g3
+ -> make remote-sync
+ -> make remote-status
  -> remote health check
  -> data prepare
  -> answer generation
