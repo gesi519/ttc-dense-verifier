@@ -167,7 +167,7 @@ g3
 建议远程目录：
 
 ```text
-/srv/ttc-dense-verifier
+/data/lry_machine_learning/ttc_dense_verifier
 ```
 
 启动远程长任务前必须确认：
