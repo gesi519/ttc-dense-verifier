@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "/srv/ttc-dense-verifier"
+cd "/data/lry_machine_learning/ttc_dense_verifier"
 export TTC_RUN_ID="${TTC_RUN_ID:-health-$(date +%Y%m%d-%H%M%S)}"
 mkdir -p outputs/logs outputs/tables outputs/figures outputs/demo_cases
 mkdir -p data/raw_questions data/generated_negative data/generated_positive data/preference data/evaluation_outputs data/training/rm data/training/sft
 mkdir -p checkpoints/verifier_qwen7b_rm checkpoints/generator_qwen32b_sft_lora
 
-echo "[health] project: /srv/ttc-dense-verifier"
+echo "[health] project: /data/lry_machine_learning/ttc_dense_verifier"
 echo "[health] required commands"
 command -v python >/dev/null
 command -v tmux >/dev/null

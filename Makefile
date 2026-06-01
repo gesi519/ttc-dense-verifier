@@ -1,6 +1,6 @@
 PYTHON ?= python3
 PYTHONPATH ?= src
-REMOTE_PROJECT_DIR ?= /srv/ttc-dense-verifier
+REMOTE_PROJECT_DIR ?= /data/lry_machine_learning/ttc_dense_verifier
 REMOTE_RUNBOOK_DIR ?= scripts/remote_deploy/generated
 VERIFY_REMOTE_RUNBOOK_DIR ?= /tmp/ttc-dense-verifier-remote-runbook
 SMOKE_OUTPUT_DIR ?= /tmp/ttc-dense-verifier-local-smoke

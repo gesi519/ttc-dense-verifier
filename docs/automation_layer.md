@@ -54,19 +54,19 @@ rsync -av \
   --exclude checkpoints \
   --exclude outputs/logs \
   --exclude scripts/remote_deploy/generated/.env \
-  ./ g3:/srv/ttc-dense-verifier/
+  ./ g3:/data/lry_machine_learning/ttc_dense_verifier/
 ```
 
 远程健康检查：
 
 ```bash
-ssh g3 'cd /srv/ttc-dense-verifier && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/health_check.sh'
+ssh g3 'cd /data/lry_machine_learning/ttc_dense_verifier && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/health_check.sh'
 ```
 
 远程长任务：
 
 ```bash
-ssh g3 'cd /srv/ttc-dense-verifier && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/run_remote_jobs.sh'
+ssh g3 'cd /data/lry_machine_learning/ttc_dense_verifier && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/run_remote_jobs.sh'
 ```
 
 ## 4. 推荐阶段顺序

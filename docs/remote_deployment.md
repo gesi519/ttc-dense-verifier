@@ -43,13 +43,13 @@ Generate the deployment scripts locally:
 ```bash
 python -m ttc_dense_verifier.cli export-remote-runbook \
   --output-dir scripts/remote_deploy/generated \
-  --remote-project-dir /srv/ttc-dense-verifier
+  --remote-project-dir /data/lry_machine_learning/ttc_dense_verifier
 ```
 
 Then copy the repository to the remote server and run:
 
 ```bash
-cd /srv/ttc-dense-verifier
+cd /data/lry_machine_learning/ttc_dense_verifier
 cp scripts/remote_deploy/generated/.env.example scripts/remote_deploy/generated/.env
 # Edit endpoint, model path, GPU, and verifier service values before sourcing.
 set -a

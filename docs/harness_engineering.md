@@ -184,7 +184,7 @@ make remote-runbook
 远程执行前检查：
 
 ```bash
-ssh g3 'nvidia-smi && cd /srv/ttc-dense-verifier && git status --short'
+ssh g3 'nvidia-smi && cd /data/lry_machine_learning/ttc_dense_verifier && git status --short'
 ```
 
 ## 7. 后续重构建议

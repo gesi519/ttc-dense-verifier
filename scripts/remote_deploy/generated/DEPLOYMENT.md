@@ -1,6 +1,6 @@
 # Remote Deployment Runbook
 
-Remote project directory: `/srv/ttc-dense-verifier`
+Remote project directory: `/data/lry_machine_learning/ttc_dense_verifier`
 
 1. Sync the repository contents to the remote project directory.
 2. Create and activate a Python environment with CUDA PyTorch, vLLM, LLaMA-Factory, tmux, and this package installed.

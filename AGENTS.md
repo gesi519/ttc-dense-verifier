@@ -108,7 +108,7 @@ PYTHONPATH=src python -m ttc_dense_verifier.cli prepare-preferences --questions 
 优先命令：
 
 ```bash
-PYTHONPATH=src python -m ttc_dense_verifier.cli export-remote-runbook --output-dir scripts/remote_deploy/generated --remote-project-dir /srv/ttc-dense-verifier
+PYTHONPATH=src python -m ttc_dense_verifier.cli export-remote-runbook --output-dir scripts/remote_deploy/generated --remote-project-dir /data/lry_machine_learning/ttc_dense_verifier
 ```
 
 ### TTC Inference Agent
@@ -173,5 +173,5 @@ g3
 启动远程长任务前必须确认：
 
 ```bash
-ssh g3 'nvidia-smi && cd /srv/ttc-dense-verifier && git status --short'
+ssh g3 'nvidia-smi && cd /data/lry_machine_learning/ttc_dense_verifier && git status --short'
 ```

@@ -39,7 +39,7 @@ Generate remote scripts after changing deployment logic:
 $env:PYTHONPATH="src"
 python -m ttc_dense_verifier.cli export-remote-runbook `
   --output-dir scripts/remote_deploy/generated `
-  --remote-project-dir /srv/ttc-dense-verifier
+  --remote-project-dir /data/lry_machine_learning/ttc_dense_verifier
 ```
 
 Before remote training, copy `scripts/remote_deploy/generated/.env.example` to `.env` on the server, set the generator model path and verifier service command, source it, start `start_generator_vllm.sh` and `start_verifier_service.sh`, then run `scripts/remote_deploy/generated/health_check.sh`.
