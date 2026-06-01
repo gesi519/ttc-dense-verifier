@@ -1,6 +1,11 @@
 # Task Log: P5 Data Contract
 
-status: planned
+status: committed
+
+## Result
+
+Completed by Codex worker Faraday. Scheduler reviewed the contract, duplicate
+prompt split test, and local validation results.
 
 ## Owning Agent
 

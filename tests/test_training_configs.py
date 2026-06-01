@@ -306,6 +306,165 @@ class TrainingConfigTests(unittest.TestCase):
             self.assertEqual(report["ok"], False)
             self.assertTrue(any("ttc_sft" in error for error in report["errors"]))
 
+    def test_validate_training_inputs_rejects_wrong_dataset_info_column_mapping(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            rm_dir = root / "rm"
+            sft_dir = root / "sft"
+            rm_dir.mkdir()
+            sft_dir.mkdir()
+            (rm_dir / "dataset_info.json").write_text(
+                json.dumps(
+                    {
+                        "ttc_rm": {
+                            "file_name": "train_rm.jsonl",
+                            "ranking": True,
+                            "columns": {
+                                "prompt": "prompt",
+                                "query": "input",
+                                "chosen": "chosen",
+                                "rejected": "rejected",
+                            },
+                        },
+                        "ttc_rm_val": {
+                            "file_name": "val_rm.jsonl",
+                            "ranking": True,
+                            "columns": {
+                                "prompt": "instruction",
+                                "query": "input",
+                                "chosen": "chosen",
+                                "rejected": "rejected",
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (rm_dir / "train_rm.jsonl").write_text(
+                json.dumps({"instruction": "Q", "input": "", "chosen": "A", "rejected": "B"}) + "\n",
+                encoding="utf-8",
+            )
+            (rm_dir / "val_rm.jsonl").write_text(
+                json.dumps({"instruction": "Q2", "input": "", "chosen": "A2", "rejected": "B2"}) + "\n",
+                encoding="utf-8",
+            )
+            (sft_dir / "dataset_info.json").write_text(
+                json.dumps(
+                    {
+                        "ttc_sft": {
+                            "file_name": "train_sft.jsonl",
+                            "columns": {"prompt": "instruction", "query": "input", "response": "output"},
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (sft_dir / "train_sft.jsonl").write_text(
+                json.dumps({"instruction": "Q", "input": "", "output": "A"}) + "\n",
+                encoding="utf-8",
+            )
+
+            report = validate_training_inputs(
+                rm_config=ROOT / "configs" / "training" / "verifier_rm_qwen7b.yaml",
+                sft_config=ROOT / "configs" / "training" / "generator_sft_qwen32b_lora.yaml",
+                rm_dataset_dir=rm_dir,
+                sft_dataset_dir=sft_dir,
+            )
+
+            self.assertEqual(report["ok"], False)
+            self.assertTrue(any("columns.prompt" in error for error in report["errors"]))
+
+    def test_validate_training_inputs_warns_before_overwriting_existing_checkpoint_dir(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            rm_dir = root / "rm"
+            sft_dir = root / "sft"
+            checkpoint_dir = root / "checkpoints" / "verifier"
+            rm_dir.mkdir()
+            sft_dir.mkdir()
+            checkpoint_dir.mkdir(parents=True)
+            (checkpoint_dir / "adapter_config.json").write_text("{}", encoding="utf-8")
+            rm_config = root / "rm.yaml"
+            rm_config.write_text(
+                "\n".join(
+                    [
+                        "model_name_or_path: Qwen2.5-7B-Instruct",
+                        "stage: rm",
+                        "do_train: true",
+                        "finetuning_type: lora",
+                        "dataset: ttc_rm",
+                        "eval_dataset: ttc_rm_val",
+                        "dataset_dir: data/training/rm",
+                        "template: qwen",
+                        "cutoff_len: 2048",
+                        f"output_dir: {checkpoint_dir}",
+                        "overwrite_output_dir: true",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            (rm_dir / "dataset_info.json").write_text(
+                json.dumps(
+                    {
+                        "ttc_rm": {
+                            "file_name": "train_rm.jsonl",
+                            "ranking": True,
+                            "columns": {
+                                "prompt": "instruction",
+                                "query": "input",
+                                "chosen": "chosen",
+                                "rejected": "rejected",
+                            },
+                        },
+                        "ttc_rm_val": {
+                            "file_name": "val_rm.jsonl",
+                            "ranking": True,
+                            "columns": {
+                                "prompt": "instruction",
+                                "query": "input",
+                                "chosen": "chosen",
+                                "rejected": "rejected",
+                            },
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (rm_dir / "train_rm.jsonl").write_text(
+                json.dumps({"instruction": "Q", "input": "", "chosen": "A", "rejected": "B"}) + "\n",
+                encoding="utf-8",
+            )
+            (rm_dir / "val_rm.jsonl").write_text(
+                json.dumps({"instruction": "Q2", "input": "", "chosen": "A2", "rejected": "B2"}) + "\n",
+                encoding="utf-8",
+            )
+            (sft_dir / "dataset_info.json").write_text(
+                json.dumps(
+                    {
+                        "ttc_sft": {
+                            "file_name": "train_sft.jsonl",
+                            "columns": {"prompt": "instruction", "query": "input", "response": "output"},
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (sft_dir / "train_sft.jsonl").write_text(
+                json.dumps({"instruction": "Q", "input": "", "output": "A"}) + "\n",
+                encoding="utf-8",
+            )
+
+            report = validate_training_inputs(
+                rm_config=rm_config,
+                sft_config=ROOT / "configs" / "training" / "generator_sft_qwen32b_lora.yaml",
+                rm_dataset_dir=rm_dir,
+                sft_dataset_dir=sft_dir,
+            )
+
+            self.assertEqual(report["ok"], True)
+            self.assertTrue(any("overwrite_output_dir=true" in warning for warning in report["warnings"]))
+
 
 if __name__ == "__main__":
     unittest.main()

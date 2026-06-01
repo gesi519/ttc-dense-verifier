@@ -1,6 +1,12 @@
 # Task Log: P6 Training Contract
 
-status: planned
+status: committed
+
+## Result
+
+Completed by Codex worker Gibbs. Scheduler reviewed the training contract,
+input validation hard checks, overwrite warning behavior, and local validation
+results.
 
 ## Owning Agent
 

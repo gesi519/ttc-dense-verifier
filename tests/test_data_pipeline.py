@@ -100,6 +100,27 @@ class DataPipelineTests(unittest.TestCase):
         self.assertTrue(train_ids.isdisjoint(test_ids))
         self.assertTrue(val_ids.isdisjoint(test_ids))
 
+    def test_split_by_prompt_id_keeps_duplicate_prompt_ids_in_one_split(self):
+        pairs = [
+            {
+                "prompt_id": prompt_id,
+                "prompt": f"Prompt {prompt_id}",
+                "chosen": f"Chosen {row}",
+                "rejected": f"Rejected {row}",
+                "metadata": {"row": row},
+            }
+            for row, prompt_id in enumerate(["p1", "p1", "p2", "p2", "p3", "p3"])
+        ]
+
+        splits = split_by_prompt_id(pairs, train_ratio=0.34, val_ratio=0.33, seed=5)
+
+        locations = {}
+        for split_name, records in splits.items():
+            for record in records:
+                previous = locations.setdefault(record["prompt_id"], split_name)
+                self.assertEqual(previous, split_name)
+        self.assertEqual(set(locations), {"p1", "p2", "p3"})
+
     def test_jsonl_round_trip_creates_parent_directories(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "nested" / "records.jsonl"

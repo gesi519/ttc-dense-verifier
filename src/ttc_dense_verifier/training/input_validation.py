@@ -13,17 +13,24 @@ def validate_training_inputs(
     sft_dataset_dir: str | Path,
 ) -> dict[str, Any]:
     errors: list[str] = []
-    rm_report = _validate_rm_inputs(Path(rm_config), Path(rm_dataset_dir), errors)
-    sft_report = _validate_sft_inputs(Path(sft_config), Path(sft_dataset_dir), errors)
+    warnings: list[str] = []
+    rm_report = _validate_rm_inputs(Path(rm_config), Path(rm_dataset_dir), errors, warnings)
+    sft_report = _validate_sft_inputs(Path(sft_config), Path(sft_dataset_dir), errors, warnings)
     return {
         "ok": not errors,
         "errors": errors,
+        "warnings": warnings,
         "rm": rm_report,
         "sft": sft_report,
     }
 
 
-def _validate_rm_inputs(config_path: Path, dataset_dir: Path, errors: list[str]) -> dict[str, Any]:
+def _validate_rm_inputs(
+    config_path: Path,
+    dataset_dir: Path,
+    errors: list[str],
+    warnings: list[str],
+) -> dict[str, Any]:
     config = _read_yaml_scalars(config_path, errors)
     required = {
         "model_name_or_path",
@@ -40,12 +47,36 @@ def _validate_rm_inputs(config_path: Path, dataset_dir: Path, errors: list[str])
     _require_keys(config, required, f"RM config {config_path}", errors)
     if config.get("stage") != "rm":
         errors.append(f"RM config stage must be rm, got {config.get('stage')}")
+    _validate_bool(config, "do_train", True, f"RM config {config_path}", errors)
+    _validate_checkpoint_overwrite_risk(config, f"RM config {config_path}", warnings)
 
     dataset_info = _read_dataset_info(dataset_dir, errors)
     train_name = str(config.get("dataset", ""))
     val_name = str(config.get("eval_dataset", ""))
     train_entry = _require_dataset_entry(dataset_info, train_name, "RM train", errors)
     val_entry = _require_dataset_entry(dataset_info, val_name, "RM eval", errors)
+    _require_columns_mapping(
+        train_entry,
+        {
+            "prompt": "instruction",
+            "query": "input",
+            "chosen": "chosen",
+            "rejected": "rejected",
+        },
+        f"RM train dataset {train_name!r}",
+        errors,
+    )
+    _require_columns_mapping(
+        val_entry,
+        {
+            "prompt": "instruction",
+            "query": "input",
+            "chosen": "chosen",
+            "rejected": "rejected",
+        },
+        f"RM eval dataset {val_name!r}",
+        errors,
+    )
     train_file = dataset_dir / str(train_entry.get("file_name", ""))
     val_file = dataset_dir / str(val_entry.get("file_name", ""))
     train_rows = _validate_jsonl_columns(train_file, ["instruction", "input", "chosen", "rejected"], errors)
@@ -60,6 +91,9 @@ def _validate_rm_inputs(config_path: Path, dataset_dir: Path, errors: list[str])
         "dataset_dir": str(dataset_dir),
         "dataset": train_name,
         "eval_dataset": val_name,
+        "config_dataset_dir": str(config.get("dataset_dir", "")),
+        "output_dir": str(config.get("output_dir", "")),
+        "overwrite_output_dir": str(config.get("overwrite_output_dir", "")),
         "train_file": str(train_file),
         "val_file": str(val_file),
         "train_rows_checked": train_rows,
@@ -67,7 +101,12 @@ def _validate_rm_inputs(config_path: Path, dataset_dir: Path, errors: list[str])
     }
 
 
-def _validate_sft_inputs(config_path: Path, dataset_dir: Path, errors: list[str]) -> dict[str, Any]:
+def _validate_sft_inputs(
+    config_path: Path,
+    dataset_dir: Path,
+    errors: list[str],
+    warnings: list[str],
+) -> dict[str, Any]:
     config = _read_yaml_scalars(config_path, errors)
     required = {
         "model_name_or_path",
@@ -83,16 +122,31 @@ def _validate_sft_inputs(config_path: Path, dataset_dir: Path, errors: list[str]
     _require_keys(config, required, f"SFT config {config_path}", errors)
     if config.get("stage") != "sft":
         errors.append(f"SFT config stage must be sft, got {config.get('stage')}")
+    _validate_bool(config, "do_train", True, f"SFT config {config_path}", errors)
+    _validate_checkpoint_overwrite_risk(config, f"SFT config {config_path}", warnings)
 
     dataset_info = _read_dataset_info(dataset_dir, errors)
     dataset_name = str(config.get("dataset", ""))
     dataset_entry = _require_dataset_entry(dataset_info, dataset_name, "SFT train", errors)
+    _require_columns_mapping(
+        dataset_entry,
+        {
+            "prompt": "instruction",
+            "query": "input",
+            "response": "output",
+        },
+        f"SFT train dataset {dataset_name!r}",
+        errors,
+    )
     train_file = dataset_dir / str(dataset_entry.get("file_name", ""))
     train_rows = _validate_jsonl_columns(train_file, ["instruction", "input", "output"], errors)
     return {
         "config_path": str(config_path),
         "dataset_dir": str(dataset_dir),
         "dataset": dataset_name,
+        "config_dataset_dir": str(config.get("dataset_dir", "")),
+        "output_dir": str(config.get("output_dir", "")),
+        "overwrite_output_dir": str(config.get("overwrite_output_dir", "")),
         "train_file": str(train_file),
         "train_rows_checked": train_rows,
     }
@@ -142,6 +196,24 @@ def _require_dataset_entry(
     return entry
 
 
+def _require_columns_mapping(
+    entry: dict[str, Any],
+    expected: dict[str, str],
+    label: str,
+    errors: list[str],
+) -> None:
+    if not entry:
+        return
+    columns = entry.get("columns")
+    if not isinstance(columns, dict):
+        return
+    for key, value in expected.items():
+        if columns.get(key) != value:
+            errors.append(
+                f"{label} columns.{key} must map to {value!r}, got {columns.get(key)!r}"
+            )
+
+
 def _validate_jsonl_columns(path: Path, required_columns: list[str], errors: list[str]) -> int:
     if not path.exists():
         errors.append(f"Missing JSONL dataset file: {path}")
@@ -174,3 +246,33 @@ def _validate_jsonl_columns(path: Path, required_columns: list[str], errors: lis
 def _require_keys(values: dict[str, str], required: set[str], label: str, errors: list[str]) -> None:
     for key in sorted(required - set(values)):
         errors.append(f"{label} missing required key: {key}")
+
+
+def _validate_bool(
+    values: dict[str, str],
+    key: str,
+    expected: bool,
+    label: str,
+    errors: list[str],
+) -> None:
+    if key not in values:
+        return
+    expected_value = "true" if expected else "false"
+    if values[key].lower() != expected_value:
+        errors.append(f"{label} {key} must be {expected_value}, got {values[key]}")
+
+
+def _validate_checkpoint_overwrite_risk(
+    values: dict[str, str],
+    label: str,
+    warnings: list[str],
+) -> None:
+    output_dir_value = values.get("output_dir", "")
+    overwrite_value = values.get("overwrite_output_dir", "").lower()
+    if not output_dir_value or overwrite_value != "true":
+        return
+    output_dir = Path(output_dir_value)
+    if output_dir.exists() and any(output_dir.iterdir()):
+        warnings.append(
+            f"{label} has overwrite_output_dir=true and non-empty output_dir: {output_dir}"
+        )

@@ -79,8 +79,8 @@ Agent 执行约束：
 | P2 | 远程执行入口 | 增加 `remote-*` Makefile 目标 | Scheduler | 否 | 已完成 |
 | P3 | 远程 env 校验 | 增加 `.env` 配置检查 | Scheduler | 否 | 已完成 |
 | P4 | 远程落地准备 | 同步代码、检查目录、准备 `.env` | Remote Harness Agent | 是，非长任务 | 阻塞：等待远程模型路径与服务命令 |
-| P5 | 数据闭环最小化 | 固化问题、生成请求、偏好数据 schema | Data Pipeline Agent | 可本地 | 待执行 |
-| P6 | 训练输入闭环 | 导出 RM/SFT 数据并校验训练配置 | Training Agent | 可本地 | 待执行 |
+| P5 | 数据闭环最小化 | 固化问题、生成请求、偏好数据 schema | Data Pipeline Agent | 可本地 | 已完成 |
+| P6 | 训练输入闭环 | 导出 RM/SFT 数据并校验训练配置 | Training Agent | 可本地 | 已完成 |
 | P7 | 服务健康闭环 | 启动或验证 generator/verifier 服务 | Remote Harness Agent | 是，短任务 | 待执行 |
 | P8 | 远程数据生成 | 批量生成正负样本 | Data Pipeline Agent | 是，长任务 | 待执行 |
 | P9 | Verifier 训练 | 训练 7B reward verifier | Training Agent | 是，长任务 | 待执行 |
