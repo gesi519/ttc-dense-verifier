@@ -116,9 +116,13 @@ controlled low-quality answers that stay on topic while introducing defects such
 as UNIX-style status markers or emoji-like symbols (`❌`, `✅`, `⚠️`),
 non-standard symbol noise (`>>>`, `==>`, repeated arrows), hollow slogans,
 unsupported assertions, unexplained jargon stacking, broken heading or numbering
-structure, missing causal chains, conclusion-first reasoning, and inconsistent
-style. The request must not ask the model to reveal that the answer is
-intentionally bad.
+structure, missing causal chains, conclusion-first reasoning, and code-specific
+explanation failures. Code-specific defects include unprofessional explanatory
+style as a secondary signal, warnings or references to a function before its
+parameters, return value, side effects, and argument roles are explained, and
+thin mentions of functions, APIs, flags, or parameters without describing their
+role in the code path or behavior change. The request must not ask the model to
+reveal that the answer is intentionally bad.
 
 ## Answer Records
 

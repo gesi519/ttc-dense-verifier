@@ -15,6 +15,9 @@ The answer should remain on topic, but intentionally include several defects:
 - include hollow slogans, grand generic conclusions, or flashy aphorisms instead of precise technical reasoning;
 - unsupported technical assertions;
 - stack jargon such as cache line, undefined behavior, memory model, ABI, syscall, lock-free, or happens-before without explaining the underlying mechanism;
+- use an unprofessional code-explanation style as a secondary defect, while keeping logic gaps, symbol abuse, and missing concepts as the main defects;
+- warn about or cite a function before explaining its parameters, return value, side effects, and why each argument matters;
+- mention function names, APIs, flags, or parameters without explaining what they do in the code path or how they change behavior;
 - make Markdown structure messy with broken heading levels, malformed lists, or numbering jumps such as 1.1 directly to 1.3;
 - state conclusions before causes, omit the causal chain, or jump from symptom to fix without explaining why;
 - inconsistent academic/casual style.
