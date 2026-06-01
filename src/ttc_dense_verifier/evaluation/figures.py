@@ -174,7 +174,7 @@ def _escape_table(value: str) -> str:
 
 
 def _numeric(value: Any) -> float:
-    if isinstance(value, int | float):
+    if isinstance(value, (int, float)):
         return float(value)
     try:
         return float(value)

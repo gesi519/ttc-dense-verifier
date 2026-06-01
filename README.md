@@ -12,6 +12,25 @@ The initial code focuses on the parts that can be tested locally:
 
 Model execution is intentionally external. Use HTTP/vLLM-compatible clients or remote scripts for Qwen checkpoints; do not put model weights in this repository.
 
+## Harness Engineering
+
+This repository uses a Harness Engineering layout for reproducible agent-driven experiments. The project-level agent boundaries, constraints, and automation entrypoints are documented in:
+
+- `AGENTS.md`
+- `docs/harness_engineering.md`
+- `docs/project_structure.md`
+- `docs/constraints_layer.md`
+- `docs/automation_layer.md`
+
+Common local entrypoints:
+
+```bash
+make test
+make smoke
+make remote-runbook
+make verify
+```
+
 ## Remote Gate
 
 Generate remote scripts after changing deployment logic:
