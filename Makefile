@@ -6,7 +6,7 @@ REMOTE_RUNBOOK_DIR ?= scripts/remote_deploy/generated
 VERIFY_REMOTE_RUNBOOK_DIR ?= /tmp/ttc-dense-verifier-remote-runbook
 SMOKE_OUTPUT_DIR ?= /tmp/ttc-dense-verifier-local-smoke
 
-.PHONY: help test compile smoke remote-runbook remote-runbook-check remote-sync remote-status remote-health remote-jobs verify clean-smoke
+.PHONY: help test compile smoke remote-runbook remote-runbook-check remote-sync remote-status remote-env-check remote-health remote-jobs verify clean-smoke
 
 help:
 	@echo "Targets:"
@@ -17,6 +17,7 @@ help:
 	@echo "  remote-runbook-check Export runbook to /tmp for verification"
 	@echo "  remote-sync     Sync source tree to REMOTE_HOST:REMOTE_PROJECT_DIR"
 	@echo "  remote-status   Check remote GPU, directory, and git state"
+	@echo "  remote-env-check Check remote generated .env before health/jobs"
 	@echo "  remote-health   Run generated remote health check"
 	@echo "  remote-jobs     Run generated ordered remote jobs"
 	@echo "  verify          Run test, compile, smoke, and remote-runbook"
@@ -48,10 +49,13 @@ remote-sync:
 remote-status:
 	ssh $(REMOTE_HOST) 'nvidia-smi && cd "$(REMOTE_PROJECT_DIR)" && pwd && git status --short'
 
-remote-health:
+remote-env-check:
+	ssh $(REMOTE_HOST) 'cd "$(REMOTE_PROJECT_DIR)" && bash scripts/remote_deploy/generated/env_check.sh'
+
+remote-health: remote-env-check
 	ssh $(REMOTE_HOST) 'cd "$(REMOTE_PROJECT_DIR)" && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/health_check.sh'
 
-remote-jobs:
+remote-jobs: remote-env-check
 	ssh $(REMOTE_HOST) 'cd "$(REMOTE_PROJECT_DIR)" && set -a && source scripts/remote_deploy/generated/.env && set +a && bash scripts/remote_deploy/generated/run_remote_jobs.sh'
 
 verify: test compile smoke remote-runbook-check

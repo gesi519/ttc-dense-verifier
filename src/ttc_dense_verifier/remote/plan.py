@@ -238,6 +238,70 @@ echo "[health] remote-only runbook checks passed"
 """
 
 
+def render_env_check_script(*, remote_project_dir: str) -> str:
+    root = remote_project_dir.rstrip("/")
+    return f"""#!/usr/bin/env bash
+set -euo pipefail
+
+cd "{root}"
+
+if [ ! -f scripts/remote_deploy/generated/.env ]; then
+  echo "[env] missing scripts/remote_deploy/generated/.env" >&2
+  echo "[env] copy .env.example to .env and fill remote-specific values before health checks or long jobs" >&2
+  exit 1
+fi
+
+set -a
+source scripts/remote_deploy/generated/.env
+set +a
+
+require_nonempty() {{
+  local name="$1"
+  local value="${{!name:-}}"
+  if [ -z "${{value}}" ]; then
+    echo "[env] required variable is empty: ${{name}}" >&2
+    exit 1
+  fi
+}}
+
+require_not_placeholder() {{
+  local name="$1"
+  local placeholder="$2"
+  local value="${{!name:-}}"
+  if [ "${{value}}" = "${{placeholder}}" ]; then
+    echo "[env] variable still uses placeholder value: ${{name}}=${{value}}" >&2
+    exit 1
+  fi
+}}
+
+require_nonempty GENERATOR_ENDPOINT
+require_nonempty VERIFIER_ENDPOINT
+require_nonempty GENERATOR_MODEL
+require_nonempty VERIFIER_MODEL
+require_nonempty GENERATOR_MODEL_PATH
+require_nonempty VERIFIER_CHECKPOINT_DIR
+require_nonempty VERIFIER_SERVICE_COMMAND
+require_nonempty HEALTH_TIMEOUT_SECONDS
+require_nonempty SERVICE_STARTUP_SECONDS
+require_nonempty MIN_VERIFIER_PAIRWISE_ACCURACY
+
+require_not_placeholder GENERATOR_MODEL_PATH /models/Qwen2.5-32B-Instruct
+require_not_placeholder VERIFIER_SERVICE_COMMAND ""
+
+case "${{GENERATOR_ENDPOINT}}" in
+  http://*|https://*) ;;
+  *) echo "[env] GENERATOR_ENDPOINT must be an http(s) URL" >&2; exit 1 ;;
+esac
+
+case "${{VERIFIER_ENDPOINT}}" in
+  http://*|https://*) ;;
+  *) echo "[env] VERIFIER_ENDPOINT must be an http(s) URL" >&2; exit 1 ;;
+esac
+
+echo "[env] remote environment configuration looks complete"
+"""
+
+
 def render_generator_service_script(*, remote_project_dir: str) -> str:
     root = remote_project_dir.rstrip("/")
     return f"""#!/usr/bin/env bash
@@ -488,12 +552,13 @@ def render_deployment_notes(*, remote_project_dir: str) -> str:
             "1. Sync the repository contents to the remote project directory.",
             "2. Create and activate a Python environment with CUDA PyTorch, vLLM, LLaMA-Factory, tmux, and this package installed.",
             "3. Copy `.env.example` to `.env`, fill endpoint values, then run `set -a; source .env; set +a`.",
-            "4. Start generator serving with `bash scripts/remote_deploy/generated/start_generator_vllm.sh`.",
-            "5. Start the current verifier service with `bash scripts/remote_deploy/generated/start_verifier_service.sh`.",
-            "6. Run `bash scripts/remote_deploy/generated/health_check.sh` before any long job.",
-            "7. Start the ordered workflow with `bash scripts/remote_deploy/generated/run_remote_jobs.sh` inside a persistent shell or tmux session.",
-            "8. Inspect `outputs/logs/*_${TTC_RUN_ID}.log` and `outputs/logs/*_${TTC_RUN_ID}.status` after each phase.",
-            "9. After verifier training, the runbook automatically runs `switch_verifier_to_trained.sh` and probes the trained verifier before score validation.",
+            "4. Run `bash scripts/remote_deploy/generated/env_check.sh` before starting services.",
+            "5. Start generator serving with `bash scripts/remote_deploy/generated/start_generator_vllm.sh`.",
+            "6. Start the current verifier service with `bash scripts/remote_deploy/generated/start_verifier_service.sh`.",
+            "7. Run `bash scripts/remote_deploy/generated/health_check.sh` before any long job.",
+            "8. Start the ordered workflow with `bash scripts/remote_deploy/generated/run_remote_jobs.sh` inside a persistent shell or tmux session.",
+            "9. Inspect `outputs/logs/*_${TTC_RUN_ID}.log` and `outputs/logs/*_${TTC_RUN_ID}.status` after each phase.",
+            "10. After verifier training, the runbook automatically runs `switch_verifier_to_trained.sh` and probes the trained verifier before score validation.",
             "",
             "The generated runbook never downloads model checkpoints locally. Model serving and cache warming must be handled on the remote server.",
             "",
@@ -519,6 +584,10 @@ def write_remote_runbook(output_dir: str | Path, *, remote_project_dir: str) -> 
     )
     (target / "health_check.sh").write_text(
         render_health_check_script(remote_project_dir=remote_project_dir),
+        encoding="utf-8",
+    )
+    (target / "env_check.sh").write_text(
+        render_env_check_script(remote_project_dir=remote_project_dir),
         encoding="utf-8",
     )
     (target / "start_generator_vllm.sh").write_text(

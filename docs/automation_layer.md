@@ -61,6 +61,7 @@ make remote-status
 远程健康检查：
 
 ```bash
+make remote-env-check
 make remote-health
 ```
 
@@ -90,6 +91,7 @@ local verify
  -> export remote runbook
  -> make remote-sync
  -> make remote-status
+ -> make remote-env-check
  -> remote health check
  -> data prepare
  -> answer generation

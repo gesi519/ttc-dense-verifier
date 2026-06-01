@@ -174,5 +174,6 @@ g3
 
 ```bash
 make remote-status
+make remote-env-check
 make remote-health
 ```

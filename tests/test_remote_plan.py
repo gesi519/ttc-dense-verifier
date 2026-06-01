@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from ttc_dense_verifier.cli import main
 from ttc_dense_verifier.remote.plan import (
     build_remote_jobs,
+    render_env_check_script,
     render_health_check_script,
     render_runbook_script,
     render_generator_service_script,
@@ -90,6 +91,21 @@ class RemotePlanTests(unittest.TestCase):
         self.assertIn("python - <<'PY'", script)
         self.assertNotIn("from_pretrained", script)
 
+    def test_render_env_check_script_validates_required_remote_settings(self):
+        script = render_env_check_script(remote_project_dir="/srv/ttc")
+
+        self.assertIn('cd "/srv/ttc"', script)
+        self.assertIn("scripts/remote_deploy/generated/.env", script)
+        self.assertIn("require_nonempty GENERATOR_ENDPOINT", script)
+        self.assertIn("require_nonempty VERIFIER_ENDPOINT", script)
+        self.assertIn("require_nonempty GENERATOR_MODEL_PATH", script)
+        self.assertIn("require_nonempty VERIFIER_SERVICE_COMMAND", script)
+        self.assertIn("require_not_placeholder GENERATOR_MODEL_PATH /models/Qwen2.5-32B-Instruct", script)
+        self.assertIn("GENERATOR_ENDPOINT must be an http(s) URL", script)
+        self.assertIn("VERIFIER_ENDPOINT must be an http(s) URL", script)
+        self.assertNotIn("nvidia-smi", script)
+        self.assertNotIn("probe-remote-services", script)
+
     def test_render_service_scripts_start_generator_and_trained_verifier(self):
         generator_script = render_generator_service_script(remote_project_dir="/srv/ttc")
         verifier_script = render_verifier_service_script(remote_project_dir="/srv/ttc")
@@ -163,6 +179,7 @@ class RemotePlanTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             manifest = json.loads((output_dir / "remote_jobs.json").read_text(encoding="utf-8"))
             self.assertEqual(len(manifest["jobs"]), 17)
+            self.assertTrue((output_dir / "env_check.sh").exists())
             self.assertTrue((output_dir / "health_check.sh").exists())
             self.assertTrue((output_dir / "run_remote_jobs.sh").exists())
             self.assertTrue((output_dir / "start_generator_vllm.sh").exists())
@@ -181,6 +198,7 @@ class RemotePlanTests(unittest.TestCase):
             self.assertIn("SERVICE_STARTUP_SECONDS=30", env_example)
             self.assertIn("MIN_VERIFIER_PAIRWISE_ACCURACY=0.65", env_example)
             deployment_notes = (output_dir / "DEPLOYMENT.md").read_text(encoding="utf-8")
+            self.assertIn("env_check.sh", deployment_notes)
             self.assertIn("health_check.sh", deployment_notes)
             self.assertIn("start_generator_vllm.sh", deployment_notes)
             self.assertIn("switch_verifier_to_trained.sh", deployment_notes)

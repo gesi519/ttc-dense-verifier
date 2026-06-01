@@ -54,6 +54,7 @@ ssh g3
 cd /data/lry_machine_learning/ttc_dense_verifier
 cp scripts/remote_deploy/generated/.env.example scripts/remote_deploy/generated/.env
 # Edit endpoint, model path, GPU, and verifier service values before sourcing.
+bash scripts/remote_deploy/generated/env_check.sh
 set -a
 source scripts/remote_deploy/generated/.env
 set +a
