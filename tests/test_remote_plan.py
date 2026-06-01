@@ -100,6 +100,8 @@ class RemotePlanTests(unittest.TestCase):
         self.assertIn("require_nonempty VERIFIER_ENDPOINT", script)
         self.assertIn("require_nonempty GENERATOR_MODEL_PATH", script)
         self.assertIn("require_nonempty VERIFIER_SERVICE_COMMAND", script)
+        self.assertIn("value=\"${value%$'\\r'}\"", script)
+        self.assertIn("GENERATOR_ENDPOINT=\"${GENERATOR_ENDPOINT%$'\\r'}\"", script)
         self.assertIn("require_not_placeholder GENERATOR_MODEL_PATH /models/Qwen2.5-32B-Instruct", script)
         self.assertIn("GENERATOR_ENDPOINT must be an http(s) URL", script)
         self.assertIn("VERIFIER_ENDPOINT must be an http(s) URL", script)

@@ -77,7 +77,7 @@ Agent 执行约束：
 | P1 | 远程路径统一 | 统一 `g3` 项目目录 | Scheduler | 否 | 已完成 |
 | P2 | 远程执行入口 | 增加 `remote-*` Makefile 目标 | Scheduler | 否 | 已完成 |
 | P3 | 远程 env 校验 | 增加 `.env` 配置检查 | Scheduler | 否 | 已完成 |
-| P4 | 远程落地准备 | 同步代码、检查目录、准备 `.env` | Remote Harness Agent | 是，非长任务 | 待执行 |
+| P4 | 远程落地准备 | 同步代码、检查目录、准备 `.env` | Remote Harness Agent | 是，非长任务 | 阻塞：等待远程模型路径与服务命令 |
 | P5 | 数据闭环最小化 | 固化问题、生成请求、偏好数据 schema | Data Pipeline Agent | 可本地 | 待执行 |
 | P6 | 训练输入闭环 | 导出 RM/SFT 数据并校验训练配置 | Training Agent | 可本地 | 待执行 |
 | P7 | 服务健康闭环 | 启动或验证 generator/verifier 服务 | Remote Harness Agent | 是，短任务 | 待执行 |
@@ -111,7 +111,7 @@ Agent 执行约束：
 验收：
 
 - `make remote-status` 通过。
-- `make remote-env-check` 通过。
+- `make remote-env-check` 通过；如果远程模型路径或 verifier 服务命令尚未确定，则记录阻塞原因，不继续 P7。
 - `reports/remote_bootstrap.md` 存在，且不含密钥。
 
 提交：

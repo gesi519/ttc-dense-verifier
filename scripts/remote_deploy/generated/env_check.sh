@@ -16,6 +16,7 @@ set +a
 require_nonempty() {
   local name="$1"
   local value="${!name:-}"
+  value="${value%$'\r'}"
   if [ -z "${value}" ]; then
     echo "[env] required variable is empty: ${name}" >&2
     exit 1
@@ -26,6 +27,7 @@ require_not_placeholder() {
   local name="$1"
   local placeholder="$2"
   local value="${!name:-}"
+  value="${value%$'\r'}"
   if [ "${value}" = "${placeholder}" ]; then
     echo "[env] variable still uses placeholder value: ${name}=${value}" >&2
     exit 1
@@ -45,6 +47,9 @@ require_nonempty MIN_VERIFIER_PAIRWISE_ACCURACY
 
 require_not_placeholder GENERATOR_MODEL_PATH /models/Qwen2.5-32B-Instruct
 require_not_placeholder VERIFIER_SERVICE_COMMAND ""
+
+GENERATOR_ENDPOINT="${GENERATOR_ENDPOINT%$'\r'}"
+VERIFIER_ENDPOINT="${VERIFIER_ENDPOINT%$'\r'}"
 
 case "${GENERATOR_ENDPOINT}" in
   http://*|https://*) ;;

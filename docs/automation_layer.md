@@ -52,6 +52,8 @@ make verify
 make remote-sync
 ```
 
+`remote-sync` 使用 tar-over-ssh 同步当前工作树，并排除 `.git`、checkpoint、日志和远程 `.env`。因此远程目录可能不是 Git checkout；`remote-status` 会在无 `.git` 时报告 synced artifact tree。
+
 远程启动前状态检查：
 
 ```bash

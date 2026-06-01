@@ -39,15 +39,16 @@ remote-runbook-check:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m ttc_dense_verifier.cli export-remote-runbook --output-dir $(VERIFY_REMOTE_RUNBOOK_DIR) --remote-project-dir $(REMOTE_PROJECT_DIR)
 
 remote-sync:
-	rsync -av \
-		--exclude .git \
-		--exclude checkpoints \
-		--exclude outputs/logs \
-		--exclude scripts/remote_deploy/generated/.env \
-		./ $(REMOTE_HOST):$(REMOTE_PROJECT_DIR)/
+	ssh $(REMOTE_HOST) 'mkdir -p "$(REMOTE_PROJECT_DIR)"'
+	COPYFILE_DISABLE=1 tar --no-xattrs -czf - \
+		--exclude ./.git \
+		--exclude ./checkpoints \
+		--exclude ./outputs/logs \
+		--exclude ./scripts/remote_deploy/generated/.env \
+		. | ssh $(REMOTE_HOST) 'tar -xzf - -C "$(REMOTE_PROJECT_DIR)"'
 
 remote-status:
-	ssh $(REMOTE_HOST) 'nvidia-smi && cd "$(REMOTE_PROJECT_DIR)" && pwd && git status --short'
+	ssh $(REMOTE_HOST) 'nvidia-smi && cd "$(REMOTE_PROJECT_DIR)" && pwd && if [ -d .git ]; then git status --short; else echo "[status] not a git checkout; synced artifact tree"; fi'
 
 remote-env-check:
 	ssh $(REMOTE_HOST) 'cd "$(REMOTE_PROJECT_DIR)" && bash scripts/remote_deploy/generated/env_check.sh'
