@@ -7,3 +7,8 @@ requirements:
   - correct_markdown
   - concise_examples
   - limitations_when_relevant
+  - professional_code_explanation_style
+  - explain_functions_apis_flags_and_parameters
+  - explain_parameter_roles_return_values_and_side_effects
+  - connect_recommendations_to_code_path_mechanisms
+  - distinguish_guarantees_from_implementation_details

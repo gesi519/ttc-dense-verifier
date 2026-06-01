@@ -111,7 +111,12 @@ Required fields:
 - `metadata.generation_mode`: either `positive` or `negative`.
 - `metadata.source`: copied from the prompt record source.
 
-Positive requests ask for rigorous technical answers. Negative requests ask for
+Positive requests ask for rigorous technical answers. For code-related prompts,
+they require professional code explanations, early introduction of relevant
+functions, APIs, flags, and parameters, explicit parameter roles, return values,
+side effects, ownership or lifetime constraints, error behavior, mechanism-level
+causal reasoning, and a clear distinction between language or library guarantees
+and implementation details. Negative requests ask for
 controlled low-quality answers that stay on topic while introducing defects such
 as UNIX-style status markers or emoji-like symbols (`❌`, `✅`, `⚠️`),
 non-standard symbol noise (`>>>`, `==>`, repeated arrows), hollow slogans,

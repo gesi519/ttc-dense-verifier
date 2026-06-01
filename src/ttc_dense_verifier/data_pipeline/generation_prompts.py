@@ -28,7 +28,15 @@ POSITIVE_INSTRUCTIONS = """You are generating training data for a verifier.
 Write a high-quality technical answer to the user's question.
 The answer should include clear definitions, explicit assumptions, causal reasoning,
 correct Markdown structure, concise examples, and boundary conditions when relevant.
-Avoid slogans, unexplained concept insertion, and overconfident claims."""
+For code-related questions:
+- use professional code-explanation style without decorative status symbols or noisy separators;
+- introduce each relevant function, API, flag, and parameter before warning about it or relying on it;
+- explain parameter roles, return values, side effects, ownership or lifetime constraints, and error behavior when relevant;
+- connect each recommendation to the underlying mechanism in the code path;
+- explain how arguments, flags, or call ordering change program behavior;
+- distinguish language or library guarantees from implementation details and portability assumptions;
+- give enough detail that a reader can understand why the fix works, not just which function name to use.
+Avoid slogans, unexplained concept insertion, overconfident claims, and conclusion-first reasoning."""
 
 
 def render_generation_prompt(prompt: PromptRecord, mode: GenerationMode) -> str:

@@ -64,6 +64,16 @@ class GenerationRequestTests(unittest.TestCase):
         self.assertIn("high-quality technical answer", rendered)
         self.assertIn("explicit assumptions", rendered)
         self.assertIn("boundary conditions", rendered)
+        self.assertIn("professional code-explanation style", rendered)
+        self.assertIn("without decorative status symbols or noisy separators", rendered)
+        self.assertIn("introduce each relevant function, API, flag, and parameter", rendered)
+        self.assertIn("parameter roles", rendered)
+        self.assertIn("return values", rendered)
+        self.assertIn("side effects", rendered)
+        self.assertIn("underlying mechanism in the code path", rendered)
+        self.assertIn("how arguments, flags, or call ordering change program behavior", rendered)
+        self.assertIn("language or library guarantees", rendered)
+        self.assertIn("why the fix works", rendered)
         self.assertNotIn("symbol noise", rendered)
 
     def test_build_generation_requests_preserves_prompt_metadata(self):
