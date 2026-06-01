@@ -1,0 +1,15 @@
+target_count: 5000
+sources:
+  - name: c_system_taxonomy
+    license: locally_authored
+    topics:
+      - stdio.h
+      - stdlib.h
+      - string.h
+      - pthread
+      - memory_mapping
+      - undefined_behavior
+      - cache_behavior
+filters:
+  min_prompt_chars: 20
+  max_prompt_chars: 800

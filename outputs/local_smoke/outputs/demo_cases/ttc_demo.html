@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TTC Dense Verifier Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #5f6c7b;
+      --line: #d7dee8;
+      --panel: #ffffff;
+      --surface: #f6f8fb;
+      --kept: #0f766e;
+      --pruned: #b42318;
+      --accent: #315b91;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--surface);
+      line-height: 1.5;
+    }
+    header {
+      padding: 28px clamp(18px, 4vw, 52px) 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 3vw, 40px);
+      letter-spacing: 0;
+    }
+    .subhead {
+      margin: 0;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    main {
+      width: min(1180px, calc(100vw - 28px));
+      margin: 22px auto 48px;
+      display: grid;
+      gap: 18px;
+    }
+    .case {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .case-header {
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: start;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .case-title {
+      margin: 0;
+      font-size: 18px;
+    }
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      min-width: 220px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 13px;
+      color: var(--muted);
+      background: #fafbfc;
+    }
+    .case-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 0;
+    }
+    .pane {
+      padding: 16px 18px;
+      border-right: 1px solid var(--line);
+      min-width: 0;
+    }
+    .pane:last-child { border-right: 0; }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    .text-block {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      margin: 0 0 16px;
+      font-size: 14px;
+    }
+    .branch-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .branch {
+      border: 1px solid var(--line);
+      border-left-width: 4px;
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+    .branch.kept { border-left-color: var(--kept); }
+    .branch.pruned { border-left-color: var(--pruned); }
+    .branch-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .score {
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    @media (max-width: 760px) {
+      .case-header, .case-grid { display: block; }
+      .metrics { justify-content: flex-start; margin-top: 10px; }
+      .pane { border-right: 0; border-bottom: 1px solid var(--line); }
+      .pane:last-child { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TTC Dense Verifier Demo</h1>
+    <p class="subhead">Frozen generator candidates are scored by a separate verifier; low-scoring branches are removed before final selection.</p>
+  </header>
+  <main>
+    <article class="case">
+  <div class="case-header">
+    <div>
+      <h2 class="case-title">1. taxonomy-000003</h2>
+      <div class="metric">ttc_beam</div>
+    </div>
+    <div class="metrics">
+      <span class="metric">Final score 7.96</span>
+      <span class="metric">Verifier calls 2</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section class="pane">
+      <h3>Prompt</h3>
+      <p class="text-block">Review a C code snippet that uses memcpy versus memmove. List correctness risks, portability concerns, and test cases. Frame the answer for a junior systems-programming student. Use Markdown headings and avoid unsupported claims.</p>
+      <h3>Final selected answer</h3>
+      <p class="text-block">State assumptions first, explain the boundary conditions, and give a concise technical example.</p>
+    </section>
+    <section class="pane">
+      <h3>Kept branches</h3>
+      <ul class="branch-list">
+<li class="branch kept">
+  <div class="branch-top"><span>Kept</span><span class="score">score 7.96 / verifier 4.13</span></div>
+  <div class="text-block"> State assumptions first, explain the boundary conditions, and give a concise technical example.</div>
+</li>
+</ul>
+      <h3>Pruned branches</h3>
+      <ul class="branch-list">
+<li class="branch pruned">
+  <div class="branch-top"><span>Pruned</span><span class="score">score -7.92 / verifier -3.91</span></div>
+  <div class="text-block"> &gt;&gt;&gt; This is a revolutionary answer ===&gt; trust it.</div>
+</li>
+</ul>
+    </section>
+  </div>
+</article>
+<article class="case">
+  <div class="case-header">
+    <div>
+      <h2 class="case-title">2. taxonomy-000006</h2>
+      <div class="metric">ttc_beam</div>
+    </div>
+    <div class="metrics">
+      <span class="metric">Final score 7.96</span>
+      <span class="metric">Verifier calls 2</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section class="pane">
+      <h3>Prompt</h3>
+      <p class="text-block">Debug a likely failure involving memcpy versus memmove. Identify the root cause, the unsafe assumption, and a corrected approach. Frame the answer for a junior systems-programming student. Include one minimal C snippet and explain its limitation.</p>
+      <h3>Final selected answer</h3>
+      <p class="text-block">State assumptions first, explain the boundary conditions, and give a concise technical example.</p>
+    </section>
+    <section class="pane">
+      <h3>Kept branches</h3>
+      <ul class="branch-list">
+<li class="branch kept">
+  <div class="branch-top"><span>Kept</span><span class="score">score 7.96 / verifier 4.13</span></div>
+  <div class="text-block"> State assumptions first, explain the boundary conditions, and give a concise technical example.</div>
+</li>
+</ul>
+      <h3>Pruned branches</h3>
+      <ul class="branch-list">
+<li class="branch pruned">
+  <div class="branch-top"><span>Pruned</span><span class="score">score -7.92 / verifier -3.91</span></div>
+  <div class="text-block"> &gt;&gt;&gt; This is a revolutionary answer ===&gt; trust it.</div>
+</li>
+</ul>
+    </section>
+  </div>
+</article>
+  </main>
+</body>
+</html>

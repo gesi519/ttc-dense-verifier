@@ -1,0 +1,8 @@
+static_metrics:
+  - abnormal_symbol_count
+  - code_fence_mismatch
+  - slogan_phrase_count
+  - heading_count
+  - list_item_count
+  - character_count
+  - word_count

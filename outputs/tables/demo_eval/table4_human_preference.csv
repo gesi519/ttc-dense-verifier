@@ -1,0 +1,4 @@
+method,reviewed_count,best_count,preference_rate,ttc_removes_visible_defects_yes_count,ttc_removes_visible_defects_yes_rate,ttc_loses_useful_information_yes_count,ttc_loses_useful_information_yes_rate,verifier_over_penalizes_valid_wording_yes_count,verifier_over_penalizes_valid_wording_yes_rate
+raw,5,1,0.2,4,0.8,1,0.2,1,0.2
+ttc_beam,5,3,0.6,4,0.8,1,0.2,1,0.2
+ttc_mcts,5,1,0.2,4,0.8,1,0.2,1,0.2

@@ -1,0 +1,200 @@
+{
+  "jobs": [
+    {
+      "command": "python -m ttc_dense_verifier.cli build-questions --output data/raw_questions/questions.jsonl --limit 5000",
+      "config_path": "configs/data_generation/questions.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/prompt_expansion_${TTC_RUN_ID}.log",
+      "name": "prompt_expansion",
+      "output_paths": [
+        "data/raw_questions/questions.jsonl"
+      ],
+      "phase": "data_prepare"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli build-generation-requests --questions data/raw_questions/questions.jsonl --mode negative --model \"${GENERATOR_MODEL:-Qwen2.5-32B-Instruct}\" --output data/generated_negative/negative_generation_requests.jsonl",
+      "config_path": "configs/data_generation/negative_generation.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/negative_request_render_${TTC_RUN_ID}.log",
+      "name": "negative_request_render",
+      "output_paths": [
+        "data/generated_negative/negative_generation_requests.jsonl"
+      ],
+      "phase": "request_render"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli run-generation-requests --input data/generated_negative/negative_generation_requests.jsonl --output data/generated_negative/negative_answers.jsonl --endpoint \"${GENERATOR_ENDPOINT:?set GENERATOR_ENDPOINT}\" --model \"${GENERATOR_MODEL:-Qwen2.5-32B-Instruct}\" --api-key \"${MODEL_API_KEY:-}\"",
+      "config_path": "configs/data_generation/negative_generation.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/negative_answer_generation_${TTC_RUN_ID}.log",
+      "name": "negative_answer_generation",
+      "output_paths": [
+        "data/generated_negative/negative_answers.jsonl"
+      ],
+      "phase": "answer_generation"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli build-generation-requests --questions data/raw_questions/questions.jsonl --mode positive --model \"${GENERATOR_MODEL:-Qwen2.5-32B-Instruct}\" --output data/generated_positive/positive_generation_requests.jsonl",
+      "config_path": "configs/data_generation/positive_generation.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/positive_request_render_${TTC_RUN_ID}.log",
+      "name": "positive_request_render",
+      "output_paths": [
+        "data/generated_positive/positive_generation_requests.jsonl"
+      ],
+      "phase": "request_render"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli run-generation-requests --input data/generated_positive/positive_generation_requests.jsonl --output data/generated_positive/positive_answers.jsonl --endpoint \"${GENERATOR_ENDPOINT:?set GENERATOR_ENDPOINT}\" --model \"${GENERATOR_MODEL:-Qwen2.5-32B-Instruct}\" --api-key \"${MODEL_API_KEY:-}\"",
+      "config_path": "configs/data_generation/positive_generation.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/positive_answer_generation_${TTC_RUN_ID}.log",
+      "name": "positive_answer_generation",
+      "output_paths": [
+        "data/generated_positive/positive_answers.jsonl"
+      ],
+      "phase": "answer_generation"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli prepare-preferences --questions data/raw_questions/questions.jsonl --positive data/generated_positive/positive_answers.jsonl --negative data/generated_negative/negative_answers.jsonl --output-dir data/preference",
+      "config_path": "configs/data_generation/questions.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/preference_split_export_${TTC_RUN_ID}.log",
+      "name": "preference_split_export",
+      "output_paths": [
+        "data/preference/train_preference.jsonl",
+        "data/preference/val_preference.jsonl",
+        "data/preference/test_prompts.jsonl",
+        "data/preference/data_report.md"
+      ],
+      "phase": "preference_split"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli export-rm-dataset --train data/preference/train_preference.jsonl --val data/preference/val_preference.jsonl --output-dir data/training/rm --dataset-name ttc_rm",
+      "config_path": "configs/training/verifier_rm_qwen7b.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/rm_dataset_export_${TTC_RUN_ID}.log",
+      "name": "rm_dataset_export",
+      "output_paths": [
+        "data/training/rm/train_rm.jsonl",
+        "data/training/rm/val_rm.jsonl",
+        "data/training/rm/dataset_info.json"
+      ],
+      "phase": "dataset_export"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli export-sft-dataset --input data/preference/train_preference.jsonl --output data/training/sft/train_sft.jsonl",
+      "config_path": "configs/training/generator_sft_qwen32b_lora.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/sft_dataset_export_${TTC_RUN_ID}.log",
+      "name": "sft_dataset_export",
+      "output_paths": [
+        "data/training/sft/train_sft.jsonl",
+        "data/training/sft/dataset_info.json"
+      ],
+      "phase": "dataset_export"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli validate-training-inputs --rm-config configs/training/verifier_rm_qwen7b.yaml --sft-config configs/training/generator_sft_qwen32b_lora.yaml --rm-dataset-dir data/training/rm --sft-dataset-dir data/training/sft --output outputs/logs/training_input_validation_${TTC_RUN_ID}.json",
+      "config_path": "configs/training/verifier_rm_qwen7b.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/training_input_validation_${TTC_RUN_ID}.log",
+      "name": "training_input_validation",
+      "output_paths": [
+        "outputs/logs/training_input_validation_${TTC_RUN_ID}.json"
+      ],
+      "phase": "training_validation"
+    },
+    {
+      "command": "llamafactory-cli train configs/training/verifier_rm_qwen7b.yaml && python -m ttc_dense_verifier.cli export-training-summary --config configs/training/verifier_rm_qwen7b.yaml --output outputs/logs/verifier_rm_metrics_${TTC_RUN_ID}.json --label verifier_rm",
+      "config_path": "configs/training/verifier_rm_qwen7b.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/verifier_rm_training_${TTC_RUN_ID}.log",
+      "name": "verifier_rm_training",
+      "output_paths": [
+        "checkpoints/verifier_qwen7b_rm",
+        "outputs/logs/verifier_rm_metrics_${TTC_RUN_ID}.json"
+      ],
+      "phase": "training"
+    },
+    {
+      "command": "llamafactory-cli train configs/training/generator_sft_qwen32b_lora.yaml && python -m ttc_dense_verifier.cli export-training-summary --config configs/training/generator_sft_qwen32b_lora.yaml --output outputs/logs/generator_sft_metrics_${TTC_RUN_ID}.json --label generator_sft",
+      "config_path": "configs/training/generator_sft_qwen32b_lora.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/generator_sft_lora_training_${TTC_RUN_ID}.log",
+      "name": "generator_sft_lora_training",
+      "output_paths": [
+        "checkpoints/generator_qwen32b_sft_lora",
+        "outputs/logs/generator_sft_metrics_${TTC_RUN_ID}.json"
+      ],
+      "phase": "training"
+    },
+    {
+      "command": "bash scripts/remote_deploy/generated/switch_verifier_to_trained.sh && sleep \"${SERVICE_STARTUP_SECONDS:-30}\" && python -m ttc_dense_verifier.cli probe-remote-services --generator-endpoint \"${GENERATOR_ENDPOINT:?set GENERATOR_ENDPOINT}\" --generator-model \"${GENERATOR_MODEL:-Qwen2.5-32B-Instruct}\" --verifier-endpoint \"${VERIFIER_ENDPOINT:?set VERIFIER_ENDPOINT}\" --api-key \"${MODEL_API_KEY:-}\" --timeout-seconds \"${HEALTH_TIMEOUT_SECONDS:-30}\" --output outputs/logs/trained_verifier_probe_${TTC_RUN_ID}.json",
+      "config_path": "configs/inference/verifier_qwen7b.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/trained_verifier_service_switch_${TTC_RUN_ID}.log",
+      "name": "trained_verifier_service_switch",
+      "output_paths": [
+        "outputs/logs/trained_verifier_probe_${TTC_RUN_ID}.json"
+      ],
+      "phase": "service_switch"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli score-preferences --input data/preference/val_preference.jsonl --output outputs/logs/verifier_validation_scores_${TTC_RUN_ID}.jsonl --endpoint \"${VERIFIER_ENDPOINT:?set VERIFIER_ENDPOINT}\" --api-key \"${MODEL_API_KEY:-}\"",
+      "config_path": "configs/training/verifier_rm_qwen7b.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/verifier_validation_scoring_${TTC_RUN_ID}.log",
+      "name": "verifier_validation_scoring",
+      "output_paths": [
+        "outputs/logs/verifier_validation_scores_${TTC_RUN_ID}.jsonl"
+      ],
+      "phase": "post_training_validation"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli validate-verifier-scores --input outputs/logs/verifier_validation_scores_${TTC_RUN_ID}.jsonl --output outputs/logs/verifier_score_validation_${TTC_RUN_ID}.json --min-pairwise-accuracy \"${MIN_VERIFIER_PAIRWISE_ACCURACY:-0.65}\"",
+      "config_path": "configs/training/verifier_rm_qwen7b.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/verifier_score_validation_${TTC_RUN_ID}.log",
+      "name": "verifier_score_validation",
+      "output_paths": [
+        "outputs/logs/verifier_score_validation_${TTC_RUN_ID}.json"
+      ],
+      "phase": "post_training_validation"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli decode-ttc --prompts data/preference/test_prompts.jsonl --output outputs/demo_cases/ttc_beam_outputs.jsonl --method beam --generator-endpoint \"${GENERATOR_ENDPOINT:?set GENERATOR_ENDPOINT}\" --verifier-endpoint \"${VERIFIER_ENDPOINT:?set VERIFIER_ENDPOINT}\" --generator-model \"${GENERATOR_MODEL:-Qwen2.5-32B-Instruct}\" --verifier-model \"${VERIFIER_MODEL:-Qwen2.5-7B-RM}\" --api-key \"${MODEL_API_KEY:-}\"",
+      "config_path": "configs/inference/beam_search_ttc.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/ttc_beam_inference_${TTC_RUN_ID}.log",
+      "name": "ttc_beam_inference",
+      "output_paths": [
+        "outputs/demo_cases/ttc_beam_outputs.jsonl"
+      ],
+      "phase": "inference"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli decode-ttc --prompts data/preference/test_prompts.jsonl --output outputs/demo_cases/ttc_mcts_outputs.jsonl --method mcts --generator-endpoint \"${GENERATOR_ENDPOINT:?set GENERATOR_ENDPOINT}\" --verifier-endpoint \"${VERIFIER_ENDPOINT:?set VERIFIER_ENDPOINT}\" --generator-model \"${GENERATOR_MODEL:-Qwen2.5-32B-Instruct}\" --verifier-model \"${VERIFIER_MODEL:-Qwen2.5-7B-RM}\" --api-key \"${MODEL_API_KEY:-}\"",
+      "config_path": "configs/inference/mcts_ttc.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/ttc_mcts_inference_${TTC_RUN_ID}.log",
+      "name": "ttc_mcts_inference",
+      "output_paths": [
+        "outputs/demo_cases/ttc_mcts_outputs.jsonl"
+      ],
+      "phase": "inference"
+    },
+    {
+      "command": "python -m ttc_dense_verifier.cli export-evaluation-assets --input outputs/demo_cases/ttc_beam_outputs.jsonl --output-dir outputs/tables/beam_eval --judge-model \"${JUDGE_MODEL:-remote-judge-model}\"",
+      "config_path": "configs/evaluation/metrics.yaml",
+      "execution_scope": "remote-only",
+      "log_path": "/srv/ttc-dense-verifier/outputs/logs/evaluation_export_${TTC_RUN_ID}.log",
+      "name": "evaluation_export",
+      "output_paths": [
+        "outputs/tables/beam_eval"
+      ],
+      "phase": "evaluation"
+    }
+  ],
+  "remote_project_dir": "/srv/ttc-dense-verifier"
+}

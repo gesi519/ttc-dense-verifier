@@ -1,0 +1,21 @@
+{
+  "bf16": {
+    "enabled": "auto"
+  },
+  "gradient_accumulation_steps": "auto",
+  "gradient_clipping": "auto",
+  "train_batch_size": "auto",
+  "train_micro_batch_size_per_gpu": "auto",
+  "zero_optimization": {
+    "contiguous_gradients": true,
+    "offload_optimizer": {
+      "device": "cpu",
+      "pin_memory": true
+    },
+    "offload_param": {
+      "device": "none"
+    },
+    "overlap_comm": true,
+    "stage": 3
+  }
+}

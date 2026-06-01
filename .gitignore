@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Never commit local or remote model artifacts.
+*.bin
+*.ckpt
+*.gguf
+*.pt
+*.pth
+*.safetensors
+*.onnx
+model_cache/
+
+# Keep placeholder directories, not heavy generated outputs.
+checkpoints/**
+!checkpoints/
+!checkpoints/**/
+!checkpoints/**/.gitkeep
+outputs/logs/*
+!outputs/logs/.gitkeep

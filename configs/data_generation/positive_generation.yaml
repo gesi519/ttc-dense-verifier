@@ -1,0 +1,9 @@
+model: Qwen2.5-32B-Instruct-or-stronger
+execution: remote_only
+requirements:
+  - clear_definitions
+  - explicit_assumptions
+  - causal_reasoning
+  - correct_markdown
+  - concise_examples
+  - limitations_when_relevant

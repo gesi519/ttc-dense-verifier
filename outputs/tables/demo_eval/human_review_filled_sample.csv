@@ -1,0 +1,6 @@
+prompt_id,prompt,best_method,ttc_removes_visible_defects,ttc_loses_useful_information,verifier_over_penalizes_valid_wording,notes
+taxonomy-000001,Explain memcpy versus memmove.,ttc_beam,yes,no,no,TTC avoids the unsafe overlap claim.
+taxonomy-000002,Debug a memcpy versus memmove failure.,ttc_beam,yes,no,no,TTC keeps the root-cause structure clearer.
+taxonomy-000003,Review a memcpy code snippet.,raw,no,no,no,Raw answer keeps a useful edge case missing from TTC.
+taxonomy-000004,Analyze memcpy performance.,ttc_beam,yes,yes,no,TTC is cleaner but drops one performance caveat.
+taxonomy-000005,Explain pthread mutex deadlock.,ttc_mcts,yes,no,yes,MCTS answer is best, but verifier may over-penalize alternative wording.

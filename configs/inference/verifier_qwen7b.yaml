@@ -1,0 +1,4 @@
+model: Qwen2.5-7B-Instruct-reward-model
+execution: remote_only
+interface: scalar_score_http
+tensor_parallel_size: 2

@@ -1,0 +1,2 @@
+method,count,latency_ms_mean,verifier_call_count_mean
+ttc_beam,2,0.03654998727142811,2.0

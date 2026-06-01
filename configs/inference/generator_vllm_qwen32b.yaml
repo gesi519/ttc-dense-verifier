@@ -1,0 +1,6 @@
+model: Qwen2.5-32B-Instruct
+execution: remote_only
+server: vllm_openai_compatible
+tensor_parallel_size: 6
+temperature: 0.7
+top_p: 0.95

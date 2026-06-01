@@ -1,0 +1,6 @@
+method: ttc_beam
+beam_width: 4
+expansions_per_step: 4
+beta: 1.0
+max_steps: 8
+verification_granularity: paragraph

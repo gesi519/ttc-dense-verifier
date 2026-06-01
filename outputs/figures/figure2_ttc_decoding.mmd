@@ -1,0 +1,9 @@
+flowchart LR
+  prompt["Prompt: Explain memcpy versus memmove in C or systems programming. State assumptions,..."] --> expand["Generator expands candidate branches"]
+  expand --> kept["Active Branch: State assumptions and boundary conditions before giving a concise technical e..."]
+  expand --> pruned["Pruned Branch: &gt;&gt;&gt; Shallow slogan answer ===&gt;"]
+  kept --> kept_score["Verifier Score: 1.81"]
+  pruned --> pruned_score["Verifier Score: -2.05"]
+  kept_score --> select["Keep top-scoring branch"]
+  pruned_score -. below beam cutoff .-> discard["Discard"]
+  select --> final["Final Answer: State assumptions and boundary conditions before giving a concise technical e..."]

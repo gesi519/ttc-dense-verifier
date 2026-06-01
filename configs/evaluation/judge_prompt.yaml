@@ -1,0 +1,9 @@
+judge_model: third_party_not_verifier_checkpoint
+dimensions:
+  - academic_rigor
+  - factual_density
+  - structure_consistency
+  - style_consistency
+  - logic_continuity
+  - usefulness
+output_format: json

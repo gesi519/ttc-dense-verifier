@@ -1,0 +1,12 @@
+{
+  "count": 12,
+  "failures": [],
+  "length_score_correlation": 0.0,
+  "markdown_score_correlation": 0.0,
+  "max_margin": 8.030000000000001,
+  "mean_margin": 8.030000000000001,
+  "median_margin": 8.030000000000001,
+  "min_margin": 8.030000000000001,
+  "pairwise_accuracy": 1.0,
+  "passed_min_accuracy": true
+}

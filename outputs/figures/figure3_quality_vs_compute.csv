@@ -1,0 +1,2 @@
+method,compute_budget,count,final_score_mean,verifier_call_count_mean,latency_ms_mean
+ttc_beam,beam_width=4; beta=1.0; expansions_per_step=4; max_steps=8,5,1.8099999999999998,2.0,0.0224800081923604

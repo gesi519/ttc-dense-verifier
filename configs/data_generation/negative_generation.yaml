@@ -1,0 +1,9 @@
+model: Qwen2.5-14B-Instruct-or-32B-Instruct
+execution: remote_only
+target_defects:
+  - symbol_noise
+  - shallow_slogan
+  - malformed_markdown
+  - unsupported_assertion
+  - style_drift
+  - logic_gap

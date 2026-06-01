@@ -1,0 +1,22 @@
+{
+  "ttc_rm": {
+    "columns": {
+      "chosen": "chosen",
+      "prompt": "instruction",
+      "query": "input",
+      "rejected": "rejected"
+    },
+    "file_name": "train_rm.jsonl",
+    "ranking": true
+  },
+  "ttc_rm_val": {
+    "columns": {
+      "chosen": "chosen",
+      "prompt": "instruction",
+      "query": "input",
+      "rejected": "rejected"
+    },
+    "file_name": "val_rm.jsonl",
+    "ranking": true
+  }
+}

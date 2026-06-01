@@ -1,0 +1,10 @@
+{
+  "ttc_sft": {
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output"
+    },
+    "file_name": "train_sft.jsonl"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "by_method": {
+    "ttc_beam": {
+      "count": 1,
+      "pass_rate": 1.0,
+      "passed_count": 1
+    }
+  },
+  "count": 1,
+  "pass_rate": 1.0,
+  "passed_count": 1,
+  "unsafe_claim_count": 0
+}

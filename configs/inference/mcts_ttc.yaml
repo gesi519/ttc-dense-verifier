@@ -1,0 +1,5 @@
+method: ttc_mcts
+expansions_per_node: 4
+simulation_budget: 32
+exploration_weight: 1.4
+verification_granularity: paragraph
