@@ -14,6 +14,7 @@
 
 - 维护阶段顺序和依赖。
 - 将小任务分配给 `agents/` 下的本地 agent 任务卡。
+- 使用 Codex 子 agent 前，必须先在 `agents/runs/` 创建任务日志，并按 `agents/codex_dispatch.md` 约束派发。
 - 收回 agent 产物后进行代码 review、实验 review 和文档 review。
 - 合并通过 review 的改动。
 - 每完成一阶段提交到 `main` 并输出阶段总结。

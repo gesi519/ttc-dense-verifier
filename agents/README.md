@@ -14,3 +14,9 @@
 - `research_lead_agent.md`
 
 完整阶段计划见仓库根目录 `TASK_WORKSHEET.md`。
+
+Codex 子 agent 派发协议见：
+
+- `codex_dispatch.md`
+
+每次派发前必须在 `runs/` 下创建任务日志。
