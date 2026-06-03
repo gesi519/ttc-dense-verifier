@@ -243,6 +243,7 @@ class BatchServingTests(unittest.TestCase):
         self.assertEqual(candidates[0].text, "answer")
         self.assertEqual(payloads[0]["max_tokens"], 192)
         self.assertEqual(payloads[0]["temperature"], 0.2)
+        self.assertEqual(payloads[0]["messages"], [{"role": "user", "content": "Prompt"}])
 
 
 if __name__ == "__main__":

@@ -86,13 +86,13 @@ class OpenAICompatibleGeneratorClient:
         self.temperature = temperature
 
     def expand(self, prompt: str, prefix: str, count: int) -> list[Candidate]:
+        messages = [{"role": "user", "content": prompt}]
+        if prefix:
+            messages.append({"role": "assistant", "content": prefix})
         payload = {
             "model": self.model,
             "n": count,
-            "messages": [
-                {"role": "user", "content": prompt},
-                {"role": "assistant", "content": prefix},
-            ],
+            "messages": messages,
         }
         if self.max_tokens is not None:
             payload["max_tokens"] = self.max_tokens
