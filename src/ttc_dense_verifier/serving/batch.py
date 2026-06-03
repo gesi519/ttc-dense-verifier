@@ -5,6 +5,29 @@ from typing import Any
 from ttc_dense_verifier.serving.clients import GeneratorClient, VerifierClient
 
 
+def run_generation_request(
+    request: dict[str, Any],
+    *,
+    generator: GeneratorClient,
+) -> dict[str, Any]:
+    metadata = dict(request.get("metadata", {}))
+    generation_mode = str(metadata.get("generation_mode", "positive"))
+    kind = "chosen" if generation_mode == "positive" else "rejected"
+    candidates = generator.expand(str(request["generation_prompt"]), "", 1)
+    text = candidates[0].text if candidates else ""
+    metadata["source_prompt"] = request.get("source_prompt", "")
+    if candidates:
+        metadata["generator_logprob"] = candidates[0].logprob
+        metadata.update(candidates[0].metadata)
+    return {
+        "prompt_id": request["prompt_id"],
+        "kind": kind,
+        "text": text,
+        "model": request.get("model", "unknown"),
+        "metadata": metadata,
+    }
+
+
 def run_generation_requests(
     requests: list[dict[str, Any]],
     *,
@@ -12,24 +35,7 @@ def run_generation_requests(
 ) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     for request in requests:
-        metadata = dict(request.get("metadata", {}))
-        generation_mode = str(metadata.get("generation_mode", "positive"))
-        kind = "chosen" if generation_mode == "positive" else "rejected"
-        candidates = generator.expand(str(request["generation_prompt"]), "", 1)
-        text = candidates[0].text if candidates else ""
-        metadata["source_prompt"] = request.get("source_prompt", "")
-        if candidates:
-            metadata["generator_logprob"] = candidates[0].logprob
-            metadata.update(candidates[0].metadata)
-        records.append(
-            {
-                "prompt_id": request["prompt_id"],
-                "kind": kind,
-                "text": text,
-                "model": request.get("model", "unknown"),
-                "metadata": metadata,
-            }
-        )
+        records.append(run_generation_request(request, generator=generator))
     return records
 
 

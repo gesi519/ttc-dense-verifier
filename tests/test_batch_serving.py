@@ -113,6 +113,62 @@ class BatchServingTests(unittest.TestCase):
             self.assertEqual(rows[0]["kind"], "chosen")
             self.assertEqual(rows[0]["text"], "Local smoke answer.")
 
+    def test_run_generation_requests_cli_resume_appends_only_missing_prompts(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            input_path = root / "requests.jsonl"
+            output_path = root / "answers.jsonl"
+            input_path.write_text(
+                "\n".join(
+                    json.dumps(
+                        {
+                            "prompt_id": prompt_id,
+                            "source_prompt": f"Question {prompt_id}",
+                            "generation_prompt": "Prompt",
+                            "model": "remote-qwen32b",
+                            "metadata": {"generation_mode": "positive"},
+                        }
+                    )
+                    for prompt_id in ["p1", "p2"]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            output_path.write_text(
+                json.dumps(
+                    {
+                        "prompt_id": "p1",
+                        "kind": "chosen",
+                        "text": "Existing answer.",
+                        "model": "remote-qwen32b",
+                        "metadata": {},
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                [
+                    "run-generation-requests",
+                    "--input",
+                    str(input_path),
+                    "--output",
+                    str(output_path),
+                    "--scripted-answer",
+                    "New answer.",
+                    "--resume",
+                    "--progress-every",
+                    "1",
+                ]
+            )
+
+            self.assertEqual(exit_code, 0)
+            rows = [json.loads(line) for line in output_path.read_text(encoding="utf-8").splitlines()]
+            self.assertEqual([row["prompt_id"] for row in rows], ["p1", "p2"])
+            self.assertEqual(rows[0]["text"], "Existing answer.")
+            self.assertEqual(rows[1]["text"], "New answer.")
+
     def test_score_preferences_cli_supports_rule_based_smoke_verifier(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

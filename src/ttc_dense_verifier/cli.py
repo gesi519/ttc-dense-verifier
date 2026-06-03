@@ -31,7 +31,7 @@ from ttc_dense_verifier.evaluation.reports import (
 from ttc_dense_verifier.inference.artifacts import build_inference_record
 from ttc_dense_verifier.inference.decode import decode_prompts
 from ttc_dense_verifier.remote.plan import write_remote_runbook
-from ttc_dense_verifier.serving.batch import run_generation_requests, score_preference_pairs
+from ttc_dense_verifier.serving.batch import run_generation_request, run_generation_requests, score_preference_pairs
 from ttc_dense_verifier.serving.clients import (
     Candidate,
     HTTPVerifierClient,
@@ -81,6 +81,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_generation.add_argument("--timeout-seconds", type=float, default=60.0)
     run_generation.add_argument("--max-tokens", type=int)
     run_generation.add_argument("--temperature", type=float)
+    run_generation.add_argument("--resume", action="store_true")
+    run_generation.add_argument("--progress-every", type=int, default=25)
 
     prepare = subparsers.add_parser("prepare-preferences", help="Build preference splits from aligned JSONL files.")
     prepare.add_argument("--questions", required=True)
@@ -322,8 +324,45 @@ def _run_generation_requests(args: argparse.Namespace) -> int:
             max_tokens=args.max_tokens,
             temperature=args.temperature,
         )
+    if args.resume:
+        _write_generation_requests_incrementally(
+            requests,
+            output=Path(args.output),
+            generator=generator,
+            progress_every=args.progress_every,
+        )
+        return 0
     write_jsonl(args.output, run_generation_requests(requests, generator=generator))
     return 0
+
+
+def _write_generation_requests_incrementally(
+    requests: list[dict[str, object]],
+    *,
+    output: Path,
+    generator: object,
+    progress_every: int,
+) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    completed_prompt_ids: set[str] = set()
+    if output.exists():
+        for row in read_jsonl(output):
+            completed_prompt_ids.add(str(row.get("prompt_id", "")))
+
+    done = len(completed_prompt_ids)
+    total = len(requests)
+    with output.open("a", encoding="utf-8", newline="\n") as handle:
+        for request in requests:
+            prompt_id = str(request.get("prompt_id", ""))
+            if prompt_id in completed_prompt_ids:
+                continue
+            record = run_generation_request(request, generator=generator)  # type: ignore[arg-type]
+            handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True))
+            handle.write("\n")
+            handle.flush()
+            done += 1
+            if progress_every > 0 and done % progress_every == 0:
+                print(f"[generation] {done}/{total} records written to {output}", flush=True)
 
 
 def _prepare_preferences(args: argparse.Namespace) -> int:
