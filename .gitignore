@@ -5,10 +5,16 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .venv/
+.venv-*/
 venv/
+src/*.egg-info/
 .env
 .env.*
 !.env.example
+id_ed25519
+id_ed25519.pub
+*_token*
+*token*
 
 # Never commit local or remote model artifacts.
 *.bin
@@ -19,6 +25,7 @@ venv/
 *.safetensors
 *.onnx
 model_cache/
+models/
 
 # Keep placeholder directories, not heavy generated outputs.
 checkpoints/**
@@ -27,3 +34,20 @@ checkpoints/**
 !checkpoints/**/.gitkeep
 outputs/logs/*
 !outputs/logs/.gitkeep
+
+# Keep source-controlled examples and final reports, not large generated datasets.
+data/generated*/
+data/raw/
+data/interim/
+data/training/
+data/preference/*.jsonl
+outputs/baselines/*.jsonl
+outputs/ttc/*.jsonl
+outputs/smoke/
+outputs/local_mlx_smoke/
+runs/ttc/*/trace.jsonl
+reports/eval/*.jsonl
+reports/eval/assets_*/human_review.csv
+reports/eval/assets_*/judge_requests.jsonl
+reports/eval/static_*/static_metrics.jsonl
+reports/eval/criteria_search/val_rm_verifier_scores.jsonl

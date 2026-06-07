@@ -1,0 +1,35 @@
+{
+  "raw_32b": {
+    "abnormal_symbol_count_mean": 0.0,
+    "character_count_mean": 2946.426,
+    "code_fence_mismatch_mean": 0.0,
+    "count": 500,
+    "heading_count_mean": 5.8,
+    "list_item_count_mean": 9.194,
+    "repeated_line_count_mean": 3.252,
+    "slogan_phrase_count_mean": 0.0,
+    "word_count_mean": 427.122
+  },
+  "sft_32b": {
+    "abnormal_symbol_count_mean": 0.0,
+    "character_count_mean": 2958.268,
+    "code_fence_mismatch_mean": 0.0,
+    "count": 500,
+    "heading_count_mean": 5.812,
+    "list_item_count_mean": 9.134,
+    "repeated_line_count_mean": 3.476,
+    "slogan_phrase_count_mean": 0.0,
+    "word_count_mean": 429.324
+  },
+  "ttc_beam": {
+    "abnormal_symbol_count_mean": 0.0,
+    "character_count_mean": 3177.856,
+    "code_fence_mismatch_mean": 0.0,
+    "count": 500,
+    "heading_count_mean": 5.626,
+    "list_item_count_mean": 10.186,
+    "repeated_line_count_mean": 4.312,
+    "slogan_phrase_count_mean": 0.0,
+    "word_count_mean": 457.778
+  }
+}

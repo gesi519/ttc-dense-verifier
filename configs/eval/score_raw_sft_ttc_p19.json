@@ -1,0 +1,15 @@
+{
+  "run_id": "P20SCORE_EVAL_P19_20260606_135000",
+  "verifier_endpoint": "http://127.0.0.1:8001/score",
+  "verifier_model": "Qwen2.5-7B-RM-P10MULTI_20260604_055439",
+  "timeout_seconds": 60,
+  "paths": {
+    "merged_output": "reports/eval/merged_raw_sft_ttc_p19.jsonl",
+    "score_output": "reports/eval/verifier_score_raw_sft_ttc_p19.jsonl",
+    "summary_json": "reports/eval/verifier_score_raw_sft_ttc_p19_summary.json"
+  },
+  "comparisons": {
+    "reference_methods": ["raw_32b", "sft_32b", "ttc_beam"],
+    "candidate_method": "ttc_penalty"
+  }
+}

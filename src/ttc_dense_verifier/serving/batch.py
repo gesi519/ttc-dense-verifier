@@ -23,7 +23,7 @@ def run_generation_request(
         "prompt_id": request["prompt_id"],
         "kind": kind,
         "text": text,
-        "model": request.get("model", "unknown"),
+        "model": getattr(generator, "model", request.get("model", "unknown")),
         "metadata": metadata,
     }
 

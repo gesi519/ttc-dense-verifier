@@ -36,6 +36,26 @@ For code-related questions:
 - explain how arguments, flags, or call ordering change program behavior;
 - distinguish language or library guarantees from implementation details and portability assumptions;
 - give enough detail that a reader can understand why the fix works, not just which function name to use.
+When the user asks for tests, name concise test cases and expected outcomes; do not write a full test harness unless explicitly requested.
+Prefer sections such as Definitions, Assumptions and Boundary Conditions, Causal Mechanism, Example, Limitations, and Recommendation when they fit the question.
+When including code:
+- ensure every C snippet has sufficient buffer capacity, valid pointer ranges, and no out-of-bounds access;
+- make snippets minimal, self-contained, and compilable unless the user explicitly asks for pseudocode;
+- explain each snippet's assumptions and limitations immediately after the code block;
+- do not present implementation behavior as a language or POSIX guarantee;
+- close every Markdown code fence and avoid ending the answer inside a list item, sentence, or code block.
+- if a snippet writes past the current string terminator, allocate extra capacity explicitly, such as `char buf[16] = "abcdef";`;
+- never use `char buf[] = "..."` in an example that writes beyond the literal's allocated bytes;
+- ensure examples that compare `memcpy` and `memmove` do not themselves rely on undefined behavior except in clearly marked non-executed "bad example" snippets;
+- never say that `memcpy` copies "as if" through a temporary array; that abstract guarantee belongs to `memmove`;
+- when showing string shifts, account for the null terminator and verify the exact printed output from the byte indices;
+- if an example shifts only part of a C string, either print a bounded prefix with precision or explain the unchanged suffix in the final string;
+- verify copy-direction reasoning: when `dest < src`, forward copying is safe for overlap; when `dest > src`, backward copying is needed for overlap;
+- avoid calling runtime undefined behavior "ill-formed"; reserve "ill-formed" for compile-time program formation errors;
+- be careful with `n == 0`: state pointer validity assumptions rather than making broad claims about null pointer safety;
+- include a short "Limitations" note for every snippet, explicitly naming what the snippet does not prove;
+- keep the answer concise enough to finish completely within the token budget while still satisfying the requested details.
+Before finalizing the answer, verify that it fully satisfies every output requirement in the user question.
 Avoid slogans, unexplained concept insertion, overconfident claims, and conclusion-first reasoning."""
 
 

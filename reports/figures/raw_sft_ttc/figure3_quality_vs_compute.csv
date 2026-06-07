@@ -1,0 +1,4 @@
+method,compute_budget,count,final_score_mean,verifier_call_count_mean,latency_ms_mean
+raw_32b,default,500,0.0,0.0,0.0
+sft_32b,default,500,0.0,0.0,0.0
+ttc_beam,default,500,0.0,4.0,27821.900957750157

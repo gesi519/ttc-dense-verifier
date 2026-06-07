@@ -1,0 +1,41 @@
+model_name_or_path: /data/lry_machine_learning/models/Qwen2.5-32B-Instruct
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+quantization_bit: 4
+
+# Dataset: same generated positive SFT set used for the controlled 32B SFT baseline.
+dataset: ttc_sft
+dataset_dir: data/training/sft
+template: qwen
+cutoff_len: 2048
+overwrite_cache: true
+preprocessing_num_workers: 8
+val_size: 0.1
+
+output_dir: /data/lry_machine_learning/checkpoints/ttc_dense_verifier/generator_qwen32b_sft_lora_P12SFT_20260604_132207
+overwrite_output_dir: false
+logging_dir: outputs/logs/generator_sft_tensorboard_P12SFT_20260604_132207
+logging_steps: 10
+save_strategy: steps
+save_steps: 200
+eval_strategy: steps
+eval_steps: 200
+save_total_limit: 2
+save_only_model: true
+
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 12
+learning_rate: 1.0e-5
+num_train_epochs: 3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+bf16: true
+ddp_timeout: 180000000
+plot_loss: true
+report_to: none

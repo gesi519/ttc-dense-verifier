@@ -77,6 +77,7 @@ class OpenAICompatibleGeneratorClient:
         timeout_seconds: float = 60,
         max_tokens: int | None = None,
         temperature: float | None = None,
+        extra_body: dict[str, Any] | None = None,
     ):
         self.endpoint = endpoint.rstrip("/")
         self.model = model
@@ -84,6 +85,7 @@ class OpenAICompatibleGeneratorClient:
         self.timeout_seconds = timeout_seconds
         self.max_tokens = max_tokens
         self.temperature = temperature
+        self.extra_body = dict(extra_body or {})
 
     def expand(self, prompt: str, prefix: str, count: int) -> list[Candidate]:
         messages = [{"role": "user", "content": prompt}]
@@ -98,6 +100,7 @@ class OpenAICompatibleGeneratorClient:
             payload["max_tokens"] = self.max_tokens
         if self.temperature is not None:
             payload["temperature"] = self.temperature
+        payload.update(self.extra_body)
         request = urllib.request.Request(
             f"{self.endpoint}/chat/completions",
             data=json.dumps(payload).encode("utf-8"),

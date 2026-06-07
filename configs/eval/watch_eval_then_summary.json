@@ -1,0 +1,11 @@
+{
+  "run_id": "P18SUMMARY_WATCH_20260606_063400",
+  "poll_seconds": 180,
+  "summary_config": "configs/eval/write_eval_summary.json",
+  "paths": {
+    "merged_output": "reports/eval/merged_raw_sft_ttc.jsonl",
+    "asset_output_dir": "reports/eval/assets_raw_sft_ttc",
+    "figures_dir": "reports/figures/raw_sft_ttc"
+  },
+  "log_path": "outputs/logs/watch_eval_then_summary_P18SUMMARY_WATCH_20260606_063400.log"
+}

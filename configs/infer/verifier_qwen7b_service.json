@@ -1,0 +1,19 @@
+{
+  "run_id": "P14VERIFIER_SERVICE_20260605_105200",
+  "model": {
+    "base_model_path": "/data/lry_machine_learning/models/Qwen2.5-7B-Instruct",
+    "checkpoint_path": "/data/lry_machine_learning/checkpoints/ttc_dense_verifier/verifier_qwen7b_rm_P10MULTI_20260604_055439/checkpoint-600",
+    "training_run_id": "P10MULTI_20260604_055439",
+    "loader": "trl_value_head_with_explicit_safetensors"
+  },
+  "service": {
+    "host": "0.0.0.0",
+    "port": 8001,
+    "cuda_visible_devices": "4",
+    "dtype": "bfloat16",
+    "device_map": "auto",
+    "max_length": 2048,
+    "log_path": "outputs/logs/verifier_service_P14VERIFIER_SERVICE_20260605_105200.log",
+    "session_name": "ttc_verifier_service"
+  }
+}

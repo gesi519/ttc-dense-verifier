@@ -1,0 +1,13 @@
+{
+  "created_at": "2026-06-07T06:38:07.397020+00:00",
+  "files": [
+    "figures/fig_pairwise_win_rate.pdf",
+    "figures/fig_pairwise_win_rate.png",
+    "figures/fig_pareto_quality_repetition.pdf",
+    "figures/fig_pareto_quality_repetition.png",
+    "figures/fig_quality_mean.pdf",
+    "figures/fig_quality_mean.png",
+    "figures/fig_repetition_length.pdf",
+    "figures/fig_repetition_length.png"
+  ]
+}

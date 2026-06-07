@@ -1,0 +1,14 @@
+{
+  "run_id": "P16POST_SFT_TTC_PIPELINE_20260605_133900",
+  "expected_count": 500,
+  "poll_seconds": 180,
+  "raw_ready_timeout_seconds": 900,
+  "sft_output": "outputs/baselines/sft_32b.jsonl",
+  "test_prompts": "data/preference/test_prompts.jsonl",
+  "raw_service_config": "configs/infer/raw_32b_baseline_full.json",
+  "ttc_smoke_config": "configs/infer/ttc_beam_raw32b_smoke.json",
+  "ttc_full_config": "configs/infer/ttc_beam_raw32b_full.json",
+  "generator_endpoint": "http://127.0.0.1:8000/v1",
+  "verifier_endpoint": "http://127.0.0.1:8001/score",
+  "log_path": "outputs/logs/post_sft_ttc_pipeline_P16POST_SFT_TTC_PIPELINE_20260605_133900.log"
+}

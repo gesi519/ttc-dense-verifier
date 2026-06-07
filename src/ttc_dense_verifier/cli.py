@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import csv
 import json
+import os
+import time
 from pathlib import Path
 from typing import Sequence
 
@@ -83,6 +86,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_generation.add_argument("--temperature", type=float)
     run_generation.add_argument("--resume", action="store_true")
     run_generation.add_argument("--progress-every", type=int, default=25)
+    run_generation.add_argument("--concurrency", type=int, default=1)
+    run_generation.add_argument("--max-retries", type=int, default=3)
+    run_generation.add_argument(
+        "--deepseek-disable-thinking",
+        action="store_true",
+        help="Pass DeepSeek V4 non-thinking mode controls through the OpenAI-compatible API.",
+    )
 
     prepare = subparsers.add_parser("prepare-preferences", help="Build preference splits from aligned JSONL files.")
     prepare.add_argument("--questions", required=True)
@@ -316,13 +326,15 @@ def _run_generation_requests(args: argparse.Namespace) -> int:
     else:
         if not args.endpoint:
             raise SystemExit("--endpoint is required unless --scripted-answer is provided")
+        extra_body = {"thinking": {"type": "disabled"}} if args.deepseek_disable_thinking else None
         generator = OpenAICompatibleGeneratorClient(
             args.endpoint,
             model=args.model,
-            api_key=args.api_key,
+            api_key=args.api_key or os.environ.get("MODEL_API_KEY") or os.environ.get("DEEPSEEK_API_KEY"),
             timeout_seconds=args.timeout_seconds,
             max_tokens=args.max_tokens,
             temperature=args.temperature,
+            extra_body=extra_body,
         )
     if args.resume:
         _write_generation_requests_incrementally(
@@ -330,6 +342,8 @@ def _run_generation_requests(args: argparse.Namespace) -> int:
             output=Path(args.output),
             generator=generator,
             progress_every=args.progress_every,
+            concurrency=args.concurrency,
+            max_retries=args.max_retries,
         )
         return 0
     write_jsonl(args.output, run_generation_requests(requests, generator=generator))
@@ -342,7 +356,11 @@ def _write_generation_requests_incrementally(
     output: Path,
     generator: object,
     progress_every: int,
+    concurrency: int,
+    max_retries: int,
 ) -> None:
+    if concurrency < 1:
+        raise SystemExit("--concurrency must be >= 1")
     output.parent.mkdir(parents=True, exist_ok=True)
     completed_prompt_ids: set[str] = set()
     if output.exists():
@@ -351,18 +369,92 @@ def _write_generation_requests_incrementally(
 
     done = len(completed_prompt_ids)
     total = len(requests)
+    pending_requests = [
+        request
+        for request in requests
+        if str(request.get("prompt_id", "")) not in completed_prompt_ids
+    ]
+    print(
+        f"[generation] {len(pending_requests)} pending, {done}/{total} already written to {output}",
+        flush=True,
+    )
     with output.open("a", encoding="utf-8", newline="\n") as handle:
-        for request in requests:
-            prompt_id = str(request.get("prompt_id", ""))
-            if prompt_id in completed_prompt_ids:
-                continue
-            record = run_generation_request(request, generator=generator)  # type: ignore[arg-type]
-            handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True))
-            handle.write("\n")
-            handle.flush()
-            done += 1
-            if progress_every > 0 and done % progress_every == 0:
-                print(f"[generation] {done}/{total} records written to {output}", flush=True)
+        if concurrency == 1:
+            for request in pending_requests:
+                record = _run_generation_request_with_retries(
+                    request,
+                    generator=generator,
+                    max_retries=max_retries,
+                )
+                _append_generation_record(handle, record)
+                done += 1
+                _print_generation_progress(done, total, output, progress_every)
+            return
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
+            request_iter = iter(pending_requests)
+            future_to_prompt_id: dict[concurrent.futures.Future[dict[str, object]], str] = {}
+
+            def submit_next() -> bool:
+                try:
+                    request = next(request_iter)
+                except StopIteration:
+                    return False
+                future = executor.submit(
+                    _run_generation_request_with_retries,
+                    request,
+                    generator=generator,
+                    max_retries=max_retries,
+                )
+                future_to_prompt_id[future] = str(request.get("prompt_id", ""))
+                return True
+
+            for _ in range(min(concurrency, len(pending_requests))):
+                submit_next()
+
+            while future_to_prompt_id:
+                done_futures, _ = concurrent.futures.wait(
+                    future_to_prompt_id,
+                    return_when=concurrent.futures.FIRST_COMPLETED,
+                )
+                for future in done_futures:
+                    prompt_id = future_to_prompt_id.pop(future)
+                    try:
+                        record = future.result()
+                    except Exception as exc:
+                        raise RuntimeError(f"Generation failed for prompt_id={prompt_id}") from exc
+                    _append_generation_record(handle, record)
+                    done += 1
+                    _print_generation_progress(done, total, output, progress_every)
+                    submit_next()
+
+
+def _run_generation_request_with_retries(
+    request: dict[str, object],
+    *,
+    generator: object,
+    max_retries: int,
+) -> dict[str, object]:
+    attempts = max(1, max_retries + 1)
+    for attempt in range(1, attempts + 1):
+        try:
+            return run_generation_request(request, generator=generator)  # type: ignore[arg-type]
+        except Exception:
+            if attempt >= attempts:
+                raise
+            time.sleep(min(2**attempt, 30))
+    raise RuntimeError("unreachable generation retry state")
+
+
+def _append_generation_record(handle: object, record: dict[str, object]) -> None:
+    handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True))  # type: ignore[attr-defined]
+    handle.write("\n")  # type: ignore[attr-defined]
+    handle.flush()  # type: ignore[attr-defined]
+
+
+def _print_generation_progress(done: int, total: int, output: Path, progress_every: int) -> None:
+    if progress_every > 0 and done % progress_every == 0:
+        print(f"[generation] {done}/{total} records written to {output}", flush=True)
 
 
 def _prepare_preferences(args: argparse.Namespace) -> int:

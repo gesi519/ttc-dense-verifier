@@ -1,0 +1,23 @@
+{
+  "run_id": "P17MERGE_EVAL_20260606_050600",
+  "paths": {
+    "test_prompts": "data/preference/test_prompts.jsonl",
+    "merged_output": "reports/eval/merged_raw_sft_ttc.jsonl",
+    "report_json": "reports/eval/merge_raw_sft_ttc_report.json"
+  },
+  "methods": {
+    "raw_32b": {
+      "path": "outputs/baselines/raw_32b.jsonl",
+      "answer_key": "text"
+    },
+    "sft_32b": {
+      "path": "outputs/baselines/sft_32b.jsonl",
+      "answer_key": "text"
+    },
+    "ttc_beam": {
+      "path": "outputs/ttc/ttc_beam_raw32b.jsonl",
+      "answer_key": "final_answer"
+    }
+  }
+}
+

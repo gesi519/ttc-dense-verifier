@@ -1,6 +1,7 @@
 import json
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -169,6 +170,50 @@ class BatchServingTests(unittest.TestCase):
             self.assertEqual(rows[0]["text"], "Existing answer.")
             self.assertEqual(rows[1]["text"], "New answer.")
 
+    def test_run_generation_requests_cli_resume_supports_concurrency(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            input_path = root / "requests.jsonl"
+            output_path = root / "answers.jsonl"
+            input_path.write_text(
+                "\n".join(
+                    json.dumps(
+                        {
+                            "prompt_id": f"p{index}",
+                            "source_prompt": f"Question {index}",
+                            "generation_prompt": "Prompt",
+                            "model": "remote-qwen32b",
+                            "metadata": {"generation_mode": "positive"},
+                        }
+                    )
+                    for index in range(1, 5)
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                [
+                    "run-generation-requests",
+                    "--input",
+                    str(input_path),
+                    "--output",
+                    str(output_path),
+                    "--scripted-answer",
+                    "Concurrent answer.",
+                    "--resume",
+                    "--concurrency",
+                    "4",
+                    "--progress-every",
+                    "1",
+                ]
+            )
+
+            self.assertEqual(exit_code, 0)
+            rows = [json.loads(line) for line in output_path.read_text(encoding="utf-8").splitlines()]
+            self.assertEqual({row["prompt_id"] for row in rows}, {"p1", "p2", "p3", "p4"})
+            self.assertTrue(all(row["text"] == "Concurrent answer." for row in rows))
+
     def test_score_preferences_cli_supports_rule_based_smoke_verifier(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -212,12 +257,15 @@ class BatchServingTests(unittest.TestCase):
             model="Qwen2.5-32B-Instruct",
             max_tokens=192,
             temperature=0.2,
+            extra_body={"thinking": {"type": "disabled"}},
         )
         payloads = []
+        lock = threading.Lock()
 
         def fake_urlopen(request, timeout):
             del timeout
-            payloads.append(json.loads(request.data.decode("utf-8")))
+            with lock:
+                payloads.append(json.loads(request.data.decode("utf-8")))
 
             class Response:
                 def __enter__(self):
@@ -243,6 +291,7 @@ class BatchServingTests(unittest.TestCase):
         self.assertEqual(candidates[0].text, "answer")
         self.assertEqual(payloads[0]["max_tokens"], 192)
         self.assertEqual(payloads[0]["temperature"], 0.2)
+        self.assertEqual(payloads[0]["thinking"], {"type": "disabled"})
         self.assertEqual(payloads[0]["messages"], [{"role": "user", "content": "Prompt"}])
 
 

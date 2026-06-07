@@ -1,0 +1,9 @@
+flowchart LR
+  prompts["C/System Prompts"] --> generator["Frozen Qwen2.5-32B Generator"]
+  prompts --> data["Synthetic Preference Data"]
+  data --> verifier["Dense Qwen2.5-7B Verifier"]
+  generator --> controller["Beam Search / MCTS Controller"]
+  verifier --> controller
+  controller --> outputs["TTC Inference Logs"]
+  outputs --> eval["Evaluation Tables and Figures"]
+  eval --> demo["Classroom Demo"]

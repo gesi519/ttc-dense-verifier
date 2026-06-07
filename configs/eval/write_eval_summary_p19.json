@@ -1,0 +1,16 @@
+{
+  "run_id": "P20SUMMARY_EVAL_P19_20260606_135000",
+  "paths": {
+    "merged_output": "reports/eval/merged_raw_sft_ttc_p19.jsonl",
+    "overall_table": "reports/eval/assets_raw_sft_ttc_p19/table1_overall_metrics.csv",
+    "error_table": "reports/eval/assets_raw_sft_ttc_p19/table2_error_breakdown.csv",
+    "latency_table": "reports/eval/assets_raw_sft_ttc_p19/table3_latency_cost.csv",
+    "human_review_csv": "reports/eval/assets_raw_sft_ttc_p19/human_review.csv",
+    "judge_requests": "reports/eval/assets_raw_sft_ttc_p19/judge_requests.jsonl",
+    "static_summary": "reports/eval/static_raw_sft_ttc_p19/static_metrics_summary.json",
+    "merge_report": "reports/eval/merge_raw_sft_ttc_p19_report.json",
+    "figures_dir": "reports/figures/raw_sft_ttc_p19",
+    "metrics_csv": "reports/eval/metrics_p19.csv",
+    "main_results_md": "reports/eval/main_results_p19.md"
+  }
+}

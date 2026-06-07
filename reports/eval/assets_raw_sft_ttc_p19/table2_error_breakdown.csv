@@ -1,0 +1,5 @@
+method,abnormal_symbol_count_total,code_fence_mismatch_total,slogan_phrase_count_total,repeated_line_count_total
+raw_32b,0,0,0,1626
+sft_32b,0,0,0,1738
+ttc_beam,0,0,0,2156
+ttc_penalty,0,0,0,954

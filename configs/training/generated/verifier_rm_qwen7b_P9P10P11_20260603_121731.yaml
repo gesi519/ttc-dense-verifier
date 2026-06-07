@@ -1,0 +1,41 @@
+model_name_or_path: /data/lry_machine_learning/models/Qwen2.5-7B-Instruct
+stage: rm
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+
+dataset: ttc_rm
+eval_dataset: ttc_rm_val
+dataset_dir: data/training/rm
+template: qwen
+cutoff_len: 2048
+overwrite_cache: false
+preprocessing_num_workers: 8
+
+output_dir: /data/lry_machine_learning/checkpoints/ttc_dense_verifier/verifier_qwen7b_rm_P9P10P11_20260603_121731
+overwrite_output_dir: false
+logging_dir: outputs/logs/verifier_rm_tensorboard_P9P10P11_20260603_121731
+logging_steps: 10
+eval_strategy: steps
+save_strategy: steps
+save_steps: 200
+eval_steps: 200
+save_total_limit: 3
+
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 16
+learning_rate: 1.0e-5
+num_train_epochs: 3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+bf16: true
+ddp_timeout: 180000000
+plot_loss: true
+
+metric_for_best_model: eval_loss
+load_best_model_at_end: false
+greater_is_better: false

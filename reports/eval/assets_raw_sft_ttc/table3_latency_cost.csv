@@ -1,0 +1,4 @@
+method,count,latency_ms_mean,verifier_call_count_mean
+raw_32b,500,0.0,0.0
+sft_32b,500,0.0,0.0
+ttc_beam,500,27821.900957750157,4.0

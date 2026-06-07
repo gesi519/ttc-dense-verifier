@@ -1,0 +1,5 @@
+method,count,abnormal_symbol_count_mean,code_fence_mismatch_mean,slogan_phrase_count_mean,word_count_mean
+raw_32b,500,0.0,0.0,0.0,427.122
+sft_32b,500,0.0,0.0,0.0,429.324
+ttc_beam,500,0.0,0.0,0.0,457.778
+ttc_penalty,500,0.0,0.0,0.0,446.97

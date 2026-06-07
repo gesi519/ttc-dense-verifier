@@ -1,0 +1,5 @@
+method,abnormal_symbol_count_mean,abnormal_symbol_count_total,code_fence_mismatch_mean,code_fence_mismatch_total,count,latency_ms_mean,repeated_line_count_total,slogan_phrase_count_mean,slogan_phrase_count_total,verifier_call_count_mean,word_count_mean
+raw_32b,0,0,0,0,500,0,1626,0,0,0,427.122
+sft_32b,0,0,0,0,500,0,1738,0,0,0,429.324
+ttc_beam,0,0,0,0,500,27821.900957750157,2156,0,0,4,457.778
+ttc_penalty,0,0,0,0,500,28575.755227072164,954,0,0,4,446.97

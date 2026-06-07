@@ -1,0 +1,9 @@
+flowchart LR
+  prompt["Prompt: Debug a likely failure involving memcpy versus memmove. Identify the root cau..."] --> expand["Generator expands candidate branches"]
+  expand --> kept["Active Branch: Kept branch"]
+  expand --> pruned["Pruned Branch: Pruned branch"]
+  kept --> kept_score["Verifier Score: not recorded"]
+  pruned --> pruned_score["Verifier Score: not recorded"]
+  kept_score --> select["Keep top-scoring branch"]
+  pruned_score -. below beam cutoff .-> discard["Discard"]
+  select --> final["Final Answer: When dealing with `memcpy` and `memmove` in C or C++, it&#x27;s crucial to underst..."]

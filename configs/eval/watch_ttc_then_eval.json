@@ -1,0 +1,13 @@
+{
+  "run_id": "P17EVAL_20260606_050600",
+  "expected_count": 500,
+  "poll_seconds": 180,
+  "ttc_output": "outputs/ttc/ttc_beam_raw32b.jsonl",
+  "ttc_trace": "runs/ttc/P15TTC_BEAM_RAW32B_FULL_20260605_120200/trace.jsonl",
+  "merge_config": "configs/eval/merge_raw_sft_ttc.json",
+  "merged_output": "reports/eval/merged_raw_sft_ttc.jsonl",
+  "static_output_dir": "reports/eval/static_raw_sft_ttc",
+  "asset_output_dir": "reports/eval/assets_raw_sft_ttc",
+  "judge_model": "remote-judge-model",
+  "log_path": "outputs/logs/watch_ttc_then_eval_P17EVAL_20260606_050600.log"
+}

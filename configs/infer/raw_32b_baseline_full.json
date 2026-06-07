@@ -1,0 +1,38 @@
+{
+  "run_id": "P13RAW_FULL_20260605_061600",
+  "baseline": {
+    "name": "raw_32b",
+    "model_path": "/data/lry_machine_learning/models/Qwen2.5-32B-Instruct",
+    "served_model_name": "Qwen2.5-32B-Instruct"
+  },
+  "service": {
+    "session_name": "ttc_generator_baseline_service",
+    "venv": ".venv-vllm",
+    "cuda_visible_devices": "1,2",
+    "tensor_parallel_size": 2,
+    "host": "0.0.0.0",
+    "port": 8000,
+    "dtype": "bfloat16",
+    "max_model_len": 4096,
+    "gpu_memory_utilization": 0.9,
+    "log_dir": "outputs/logs"
+  },
+  "inference": {
+    "endpoint": "http://127.0.0.1:8000/v1",
+    "limit": null,
+    "resume": true,
+    "concurrency": 1,
+    "max_retries": 3,
+    "progress_every": 10,
+    "timeout_seconds": 180,
+    "max_tokens": 1024,
+    "temperature": 0.2,
+    "top_p": 0.9
+  },
+  "paths": {
+    "input_prompts": "data/preference/test_prompts.jsonl",
+    "output_jsonl": "outputs/baselines/raw_32b.jsonl",
+    "report_json": "outputs/logs/raw_32b_baseline_full_report.json"
+  }
+}
+

@@ -1,0 +1,32 @@
+{
+  "run_id": "P15TTC_BEAM_RAW32B_FULL_20260605_120200",
+  "limit": null,
+  "resume": true,
+  "progress_every": 10,
+  "generator": {
+    "model": "Qwen2.5-32B-Instruct",
+    "endpoint": "http://127.0.0.1:8000/v1",
+    "timeout_seconds": 240,
+    "max_tokens": 1024,
+    "temperature": 0.7,
+    "top_p": 0.9
+  },
+  "verifier": {
+    "model": "Qwen2.5-7B-RM-P10MULTI_20260604_055439",
+    "endpoint": "http://127.0.0.1:8001/score",
+    "timeout_seconds": 60
+  },
+  "decoding": {
+    "method": "beam",
+    "beam_width": 4,
+    "expansions_per_step": 4,
+    "beta": 1.0,
+    "max_steps": 1
+  },
+  "paths": {
+    "input_prompts": "data/preference/test_prompts.jsonl",
+    "output_jsonl": "outputs/ttc/ttc_beam_raw32b.jsonl",
+    "trace_jsonl": "runs/ttc/P15TTC_BEAM_RAW32B_FULL_20260605_120200/trace.jsonl",
+    "report_json": "outputs/logs/ttc_beam_raw32b_full_report.json"
+  }
+}
